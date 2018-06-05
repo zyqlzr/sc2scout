@@ -28,9 +28,7 @@ class SC2GymEnv(gym.Env):
 
     def _safe_step(self, action):
         self._num_step += 1
-        if action[0] not in self.available_actions:
-            logger.warning("Attempted unavailable action: %s", action)
-            action = [_NO_OP]
+
         try:
             obs = self._env.step([actions.FunctionCall(action[0], action[1:])])[0]
         except KeyboardInterrupt:
@@ -39,7 +37,6 @@ class SC2GymEnv(gym.Env):
         except Exception:
             logger.exception("An unexpected error occurred while applying action to environment.")
             return None, 0, True, {}
-        self.available_actions = obs.observation['available_actions']
         reward = obs.reward
         self._episode_reward += reward
         self._total_reward += reward
@@ -58,7 +55,6 @@ class SC2GymEnv(gym.Env):
         self._episode_reward = 0
         logger.info("Episode %d starting...", self._episode)
         obs = self._env.reset()[0]
-        self.available_actions = obs.observation['available_actions']
         return obs
 
     def save_replay(self, replay_dir):
