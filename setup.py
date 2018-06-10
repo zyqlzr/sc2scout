@@ -8,6 +8,8 @@ setup(
     packages=[
         'sc2scout',
         'sc2scout.envs',
+        'sc2scout.agents',
+        'sc2scout.wrapper',
     ],
 
     install_requires=[

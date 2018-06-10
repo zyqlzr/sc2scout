@@ -29,8 +29,9 @@ class SC2GymEnv(gym.Env):
     def _safe_step(self, action):
         self._num_step += 1
 
+        #print('env action=', action)
         try:
-            obs = self._env.step([actions.FunctionCall(action[0], action[1:])])[0]
+            obs = self._env.step(action)[0]
         except KeyboardInterrupt:
             logger.info("Interrupted. Quitting...")
             return None, 0, True, {}
