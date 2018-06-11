@@ -9,6 +9,9 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 class SC2GymEnv(gym.Env):
+    metadata = {'render.modes': [None, 'human'],
+                'action.noop': 8}
+
     def __init__(self, **kwargs) -> None:
         super().__init__()
         self._kwargs = kwargs

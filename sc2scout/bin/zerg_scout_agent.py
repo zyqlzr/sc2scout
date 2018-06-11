@@ -18,7 +18,7 @@ from absl import flags
 import time
 import sc2scout
 from sc2scout.envs import SC2GymEnv, ZergScoutEnv
-from sc2scout.wrapper import ZergScoutActWrapper, ZergScoutWrapper, ZergScoutRwdWrapper
+from sc2scout.wrapper import ZergScoutActWrapper, ZergScoutWrapper, ZergScoutRwdWrapper, SkipFrame
 from sc2scout.agents import RandomAgent
 
 FLAGS = flags.FLAGS
@@ -83,7 +83,7 @@ def run_loop(agent, env, max_episodes=1, max_step=100):
                 n_step += 1
                 action = agent.act(obs, rwd, done)
                 obs, rwd, done, _ = env.step(action)
-                #print('step rwd=', rwd, ',action=', action)
+                print('step rwd=', rwd, ',action=', action)
                 rwd_sum += rwd
                 if done:
                     print('end this episode, n_step=', n_step, ',max_step=', max_step)
@@ -130,6 +130,7 @@ def main(unused_argv):
             visualize=FLAGS.render
         )
     env = ZergScoutActWrapper(env)
+    env = SkipFrame(env)
     env = ZergScoutRwdWrapper(env)
     env = ZergScoutWrapper(env)
 
