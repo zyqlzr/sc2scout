@@ -25,6 +25,11 @@ class ZergScoutEnv(SC2GymEnv):
         print('*** ZergScoutEnv base_candidates=', self._base_candidates)
         return obs
 
+    def _step(self, action):
+        obs, rwd, done, other = super(ZergScoutEnv, self)._step(action)
+        self._update(obs)
+        return obs, rwd, done, other
+
     def base_candidates(self):
         return self._base_candidates
 
@@ -36,6 +41,14 @@ class ZergScoutEnv(SC2GymEnv):
 
     def enemy_base(self):
         return self._enemy_base_pos
+
+    def _update(self, obs):
+        units = obs.observation['units']
+        for u in units:
+            if u.tag == self._scout.tag:
+                self._scout = u
+                #print('update scout,pos=', (self._scout.float_attr.pos_x, 
+                #      self._scout.float_attr.pos_y))
 
     def _init_scout_and_base(self, obs):
         units = obs.observation['units']

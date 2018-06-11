@@ -8,11 +8,7 @@ from pysc2.lib import actions
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-_NO_OP = actions.FUNCTIONS.no_op.id
-
 class SC2GymEnv(gym.Env):
-    metadata = {'render.modes': [None, 'human']}
-
     def __init__(self, **kwargs) -> None:
         super().__init__()
         self._kwargs = kwargs
@@ -24,11 +20,7 @@ class SC2GymEnv(gym.Env):
         self._total_reward = 0
 
     def _step(self, action):
-        return self._safe_step(action)
-
-    def _safe_step(self, action):
         self._num_step += 1
-
         #print('env action=', action)
         try:
             obs = self._env.step(action)[0]
@@ -36,7 +28,7 @@ class SC2GymEnv(gym.Env):
             logger.info("Interrupted. Quitting...")
             return None, 0, True, {}
         except Exception:
-            logger.exception("An unexpected error occurred while applying action to environment.")
+            logger.exception("exception while execute action")
             return None, 0, True, {}
         reward = obs.reward
         self._episode_reward += reward
@@ -62,6 +54,7 @@ class SC2GymEnv(gym.Env):
         self._env.save_replay(replay_dir)
 
     def _init_env(self):
+        print("env params:", self._kwargs)
         self._env = sc2_env.SC2Env(**self._kwargs)
 
     def _close(self):
