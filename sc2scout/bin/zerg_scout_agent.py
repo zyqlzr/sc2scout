@@ -29,7 +29,7 @@ flags.DEFINE_integer("minimap_resolution", 64,
                      "Resolution for minimap feature layers.")
 
 flags.DEFINE_integer("max_agent_episodes", 1, "Total agent episodes.")
-flags.DEFINE_integer("max_step", 100, "Game steps per episode.")
+flags.DEFINE_integer("max_step", 0, "Game steps per episode.")
 flags.DEFINE_integer("step_mul", 8, "Game steps per agent step.")
 flags.DEFINE_integer("random_seed", None, "Random_seed used in game_core.")
 
@@ -62,8 +62,6 @@ def run_loop(agent, env, max_episodes=1, max_step=100):
     n_win = 0
     start_time = time.time()
 
-    print('env unwrapped=', env.unwrapped)
-    print('env=', env)
     """
     action_spec = env.unwrapped.action_spec
     observation_spec = env.unwrapped.observation_spec
@@ -86,7 +84,8 @@ def run_loop(agent, env, max_episodes=1, max_step=100):
                 action = agent.act(obs, rwd, done)
                 obs, rwd, done, _ = env.step(action)
                 outcome = rwd
-                if done or n_step > max_step:
+                if done:
+                #if done or n_step > max_step:
                     print('end this episode, n_step=', n_step, ',max_step=', max_step)
                     break
 
