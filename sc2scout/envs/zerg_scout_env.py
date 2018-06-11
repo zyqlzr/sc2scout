@@ -31,6 +31,12 @@ class ZergScoutEnv(SC2GymEnv):
     def scout(self):
         return self._scout
 
+    def owner_base(self):
+        return self._owner_base_pos
+
+    def enemy_base(self):
+        return self._enemy_base_pos
+
     def _init_scout_and_base(self, obs):
         units = obs.observation['units']
 
