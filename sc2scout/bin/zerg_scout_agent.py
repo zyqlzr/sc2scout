@@ -17,7 +17,7 @@ from absl import app
 from absl import flags
 import time
 import sc2scout
-from sc2scout.envs import SC2GymEnv
+from sc2scout.envs import SC2GymEnv, ZergScoutEnv
 from sc2scout.wrapper import ZergScoutActWrapper, ZergScoutWrapper
 from sc2scout.agents import RandomAgent
 
@@ -85,7 +85,6 @@ def run_loop(agent, env, max_episodes=1, max_step=100):
                 obs, rwd, done, _ = env.step(action)
                 outcome = rwd
                 if done:
-                #if done or n_step > max_step:
                     print('end this episode, n_step=', n_step, ',max_step=', max_step)
                     break
 
@@ -124,7 +123,7 @@ def main(unused_argv):
     #agent_module, agent_name = FLAGS.agent.rsplit(".", 1)
     #agent_cls = getattr(importlib.import_module(agent_module), agent_name)
 
-    env = SC2GymEnv(
+    env = ZergScoutEnv(
             map_name=FLAGS.map,
             agent_race=FLAGS.agent_race,
             bot_race=FLAGS.bot_race,
@@ -141,8 +140,9 @@ def main(unused_argv):
     env = ZergScoutActWrapper(env)
     env = ZergScoutWrapper(env)
 
+    print('unwrapped_env=', env.unwrapped)
     #agent = agent_cls(**agent_kwargs)
-    agent = RandomAgent(env.action_space)
+    agent = RandomAgent(env.unwrapped.action_space)
     run_loop(agent, env, max_episodes=FLAGS.max_agent_episodes, max_step=FLAGS.max_step)
     if FLAGS.save_replay:
         env.unwrapped.save_replay('save')

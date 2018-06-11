@@ -32,18 +32,13 @@ MOVE_RANGE = 1.0
 class ZergScoutActWrapper(gym.ActionWrapper):
     def __init__(self, env):
         super(ZergScoutActWrapper, self).__init__(env)
-        self._init_action_space()
         self._scout = None
 
     def _reset(self):
         print('*****action wrapper reset*****')
         obs = self.env._reset()
-        self._select_scout_from_customized(obs)
-        print('scout_unit=', self._scout.tag)
+        self._scout = self.env.unwrapped.scout()
         return obs
-
-    def _init_action_space(self):
-        self.action_space = gym.spaces.Discrete(8)
 
     def _step(self, action):
         action = self.action(action)
@@ -100,12 +95,4 @@ class ZergScoutActWrapper(gym.ActionWrapper):
         action = sc_pb.Action()
         action.action_raw.unit_command.ability_id = tp.ABILITY_ID.INVALID.value
         return action
-
-    def _select_scout_from_customized(self, obs):
-        units = obs.observation['units']
-        # update scout
-        if self._scout is None:
-            for u in units:
-                if u.int_attr.unit_type == UNIT_TYPEID.ZERG_OVERLORD.value:
-                    self._scout = u
 
