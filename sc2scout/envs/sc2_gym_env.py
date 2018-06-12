@@ -42,10 +42,14 @@ class SC2GymEnv(gym.Env):
         if self._env is None:
             self._init_env()
         if self._episode > 0:
-            logger.info("Episode %d ended with reward %d after %d steps.",
-                        self._episode, self._episode_reward, self._num_step)
-            logger.info("Got %d total reward so far, with an average reward of %g per episode",
-                        self._total_reward, float(self._total_reward) / self._episode)
+            #logger.info("---Episode %d ended with reward %d after %d steps.---",
+            #            self._episode, self._episode_reward, self._num_step)
+            #logger.info("---Got %d total reward so far, with an average reward of %g per episode---",
+            #            self._total_reward, float(self._total_reward) / self._episode)
+            print("---Episode {} ended with reward {} after {} steps.---".format(
+                        self._episode, self._episode_reward, self._num_step))
+            print("---Got {} total reward so far, with an average reward of {} per episode---".format(
+                        self._total_reward, float(self._total_reward) / self._episode))
         self._episode += 1
         self._num_step = 0
         self._episode_reward = 0

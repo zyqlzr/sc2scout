@@ -34,11 +34,9 @@ MOVE_RANGE = 1.0
 class ZergScoutActWrapper(gym.ActionWrapper):
     def __init__(self, env):
         super(ZergScoutActWrapper, self).__init__(env)
-        self._scout = None
 
     def _reset(self):
         obs = self.env._reset()
-        self._scout = self.env.unwrapped.scout()
         return obs
 
     def _step(self, action):
@@ -50,47 +48,66 @@ class ZergScoutActWrapper(gym.ActionWrapper):
         if pos is None:
             return [[self._noop()]]
         else:
-            print('action={},pos={}'.format(action, pos))
             return [[self._move_to_target(pos)]]
 
     def _reverse_action(self, action):
         raise NotImplementedError()
 
     def _calcuate_pos_by_action(self, action):
+        scout = self.env.unwrapped.scout()
         if action == ScoutMove.UPPER.value:
-            pos = (self._scout.float_attr.pos_x, 
-                   self._scout.float_attr.pos_y + MOVE_RANGE)
+            pos = (scout.float_attr.pos_x, 
+                   scout.float_attr.pos_y + MOVE_RANGE)
+            #print('action upper,scout:{} pos:{}'.format(
+            #       (scout.float_attr.pos_x, scout.float_attr.pos_y), pos))
         elif action == ScoutMove.LEFT.value:
-            pos = (self._scout.float_attr.pos_x + MOVE_RANGE,
-                   self._scout.float_attr.pos_y)
+            pos = (scout.float_attr.pos_x + MOVE_RANGE,
+                   scout.float_attr.pos_y)
+            #print('action left,scout:{} pos:{}'.format(
+            #       (scout.float_attr.pos_x, scout.float_attr.pos_y), pos))
         elif action == ScoutMove.DOWN.value:
-            pos = (self._scout.float_attr.pos_x,
-                   self._scout.float_attr.pos_y - MOVE_RANGE)
+            pos = (scout.float_attr.pos_x,
+                   scout.float_attr.pos_y - MOVE_RANGE)
+            #print('action down,scout:{} pos:{}'.format(
+            #       (scout.float_attr.pos_x, scout.float_attr.pos_y), pos))
         elif action == ScoutMove.RIGHT.value:
-            pos = (self._scout.float_attr.pos_x - MOVE_RANGE, 
-                   self._scout.float_attr.pos_y)
+            pos = (scout.float_attr.pos_x - MOVE_RANGE, 
+                   scout.float_attr.pos_y)
+            #print('action right,scout:{} pos:{}'.format(
+            #       (scout.float_attr.pos_x, scout.float_attr.pos_y), pos))
         elif action == ScoutMove.UPPER_LEFT.value:
-            pos = (self._scout.float_attr.pos_x + MOVE_RANGE,
-                   self._scout.float_attr.pos_y + MOVE_RANGE)
+            pos = (scout.float_attr.pos_x + MOVE_RANGE,
+                   scout.float_attr.pos_y + MOVE_RANGE)
+            #print('action upper_left,scout:{} pos:{}'.format(
+            #       (scout.float_attr.pos_x, scout.float_attr.pos_y), pos))
         elif action == ScoutMove.LOWER_LEFT.value:
-            pos = (self._scout.float_attr.pos_x + MOVE_RANGE,
-                   self._scout.float_attr.pos_y - MOVE_RANGE)
+            pos = (scout.float_attr.pos_x + MOVE_RANGE,
+                   scout.float_attr.pos_y - MOVE_RANGE)
+            #print('action lower_left,scout:{} pos:{}'.format(
+            #       (scout.float_attr.pos_x, scout.float_attr.pos_y), pos))
         elif action == ScoutMove.LOWER_RIGHT.value:
-            pos = (self._scout.float_attr.pos_x - MOVE_RANGE,
-                   self._scout.float_attr.pos_y - MOVE_RANGE)
+            pos = (scout.float_attr.pos_x - MOVE_RANGE,
+                   scout.float_attr.pos_y - MOVE_RANGE)
+            print('action lower_right,scout:{} pos:{}'.format(
+                   (scout.float_attr.pos_x, scout.float_attr.pos_y), pos))
         elif action == ScoutMove.UPPER_RIGHT.value:
-            pos = (self._scout.float_attr.pos_x - MOVE_RANGE,
-                   self._scout.float_attr.pos_y + MOVE_RANGE)
+            pos = (scout.float_attr.pos_x - MOVE_RANGE,
+                   scout.float_attr.pos_y + MOVE_RANGE)
+            #print('action upper_right,scout:{} pos:{}'.format(
+            #       (scout.float_attr.pos_x, scout.float_attr.pos_y), pos))
         else:
+            #print('action upper_right,scout:{} pos:None, action={}'.format(
+            #       (scout.float_attr.pos_x, scout.float_attr.pos_y), action))
             pos = None
         return pos
 
     def _move_to_target(self, pos):
+        scout = self.env.unwrapped.scout()
         action = sc_pb.Action()
         action.action_raw.unit_command.ability_id = tp.ABILITY_ID.SMART.value
         action.action_raw.unit_command.target_world_space_pos.x = pos[0]
         action.action_raw.unit_command.target_world_space_pos.y = pos[1]
-        action.action_raw.unit_command.unit_tags.append(self._scout.tag)
+        action.action_raw.unit_command.unit_tags.append(scout.tag)
         return action
 
     def _noop(self):

@@ -82,10 +82,10 @@ class ViewEnemyReward(Reward):
 
         count = 0
         for eu in enemy_units:
-            if eu in self._unit_map:
+            if eu in self._unit_set:
                 pass
             else:
                 count += 1
-                self._unit_map.add(eu)
+                self._unit_set.add(eu)
 
         self.rwd = count * self.w

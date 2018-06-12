@@ -5,13 +5,14 @@ from pysc2.env import sc2_env
 from sc2scout.envs import ZergScoutEnv
 from sc2scout.wrapper import ZergScoutActWrapper, ZergScoutWrapper, \
 ZergScoutRwdWrapper, SkipFrame, ZergScoutObsWrapper
+from sc2scout.agents import RandomAgent
 
 from absl import app
 from absl import flags
 import time
 
 FLAGS = flags.FLAGS
-flags.DEFINE_bool("render", False, "Whether to render with pygame.")
+flags.DEFINE_bool("render", True, "Whether to render with pygame.")
 flags.DEFINE_integer("screen_resolution", 84,
                      "Resolution for screen feature layers.")
 flags.DEFINE_integer("minimap_resolution", 64,
@@ -79,21 +80,27 @@ def main(unused_argv):
     env =ZergScoutObsWrapper(env)
     env = ZergScoutWrapper(env)
 
-    model = deepq.models.mlp([64, 32])
+    act = deepq.load("scout_model.pkl")
 
-    act = deepq.learn(
-        env,
-        q_func=model,
-        lr=1e-3,
-        max_timesteps=4000,
-        buffer_size=10000,
-        exploration_fraction=0.1,
-        exploration_final_eps=0.02,
-        print_freq=10,
-        callback=callback
-    )
-    print("Saving model to scout_model.pkl")
-    act.save("scout_model.pkl")
+    try:
+        obs = env.reset()
+        n_step = 0
+        # run this episode
+        while True:
+            n_step += 1
+            #print('observation=', obs, 'observation_none=', obs[None])
+            action = act(obs[None])[0]
+            print('action=', action)
+            obs, rwd, done, _ = env.step(action)
+            #print('step rwd=', rwd, ',action=', action, "obs=", obs)
+            if done:
+                print("game over")
+                break
+    except KeyboardInterrupt:
+        pass
+    finally:
+        print("evaluation over")
+    env.unwrapped.save_replay('evaluate')
 
 def entry_point():  # Needed so setup.py scripts work.
     app.run(main)

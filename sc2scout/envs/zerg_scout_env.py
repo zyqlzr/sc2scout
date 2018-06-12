@@ -19,6 +19,11 @@ class ZergScoutEnv(SC2GymEnv):
         self.action_space = gym.spaces.Discrete(8)
 
     def _reset(self):
+        self._scout = None
+        self._owner_base_pos = None
+        self._enemy_base_pos = None
+        self._base_candidates = []
+
         obs = super(ZergScoutEnv, self)._reset()
         self._init_scout_and_base(obs)
         print('*** ZergScoutEnv scout_unit=', self._scout.tag)
@@ -49,6 +54,8 @@ class ZergScoutEnv(SC2GymEnv):
                 self._scout = u
                 #print('update scout,pos=', (self._scout.float_attr.pos_x, 
                 #      self._scout.float_attr.pos_y))
+        #print('update scout, {},{}'.format(self._scout.tag, 
+        #        (self._scout.float_attr.pos_x, self._scout.float_attr.pos_y)))
 
     def _init_scout_and_base(self, obs):
         units = obs.observation['units']
