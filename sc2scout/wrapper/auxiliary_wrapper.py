@@ -35,3 +35,6 @@ class SkipFrame(gym.Wrapper):
 
     def _process_skip_info(self, skip_info, info):
         return skip_info
+
+
+

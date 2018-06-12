@@ -1,26 +1,14 @@
-"""evaluate an agent. Adopted from pysc2.bin.agent"""
-
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
-import importlib
-import threading
-
-from future.builtins import range
+from baselines import deepq
 
 from pysc2 import maps
 from pysc2.env import sc2_env
-from pysc2.lib import stopwatch
+from sc2scout.envs import ZergScoutEnv
+from sc2scout.wrapper import ZergScoutActWrapper, ZergScoutWrapper, \
+ZergScoutRwdWrapper, SkipFrame, ZergScoutObsWrapper
 
 from absl import app
 from absl import flags
 import time
-import sc2scout
-from sc2scout.envs import SC2GymEnv, ZergScoutEnv
-from sc2scout.wrapper import ZergScoutActWrapper, ZergScoutWrapper, \
-ZergScoutRwdWrapper, SkipFrame, ZergScoutObsWrapper
-from sc2scout.agents import RandomAgent
 
 FLAGS = flags.FLAGS
 flags.DEFINE_bool("render", True, "Whether to render with pygame.")
@@ -30,7 +18,7 @@ flags.DEFINE_integer("minimap_resolution", 64,
                      "Resolution for minimap feature layers.")
 
 flags.DEFINE_integer("max_agent_episodes", 1, "Total agent episodes.")
-flags.DEFINE_integer("max_step", 0, "Game steps per episode.")
+flags.DEFINE_integer("max_step", 100, "Game steps per episode.")
 flags.DEFINE_integer("step_mul", 8, "Game steps per agent step.")
 flags.DEFINE_integer("random_seed", None, "Random_seed used in game_core.")
 
@@ -55,66 +43,20 @@ flags.DEFINE_string("map", None, "Name of a map to use.")
 flags.mark_flag_as_required("map")
 
 
-def run_loop(agent, env, max_episodes=1, max_step=100):
-    """A run loop to have an agent and an environment interact."""
-    me_id = 0
-    total_frames = 0
-    n_episode = 0
-    n_win = 0
-    start_time = time.time()
+def callback(lcl, _glb):
+    # stop training if reward exceeds 199
+    #is_solved = lcl['t'] > 100 and sum(lcl['episode_rewards'][-101:-1]) / 100 >= 199
+    is_solved = False
+    return is_solved
 
-    """
-    action_spec = env.unwrapped.action_spec
-    observation_spec = env.unwrapped.observation_spec
-    agent.setup(observation_spec, action_spec)
-    """
-
-    try:
-        while True:
-            obs = env.reset()
-            rwd = 0
-            rwd_sum = 0
-            done = False
-            n_step = 0
-            agent.reset()
-
-            # run this episode
-            while True:
-                total_frames += 1
-                n_step += 1
-                action = agent.act(obs, rwd, done)
-                obs, rwd, done, _ = env.step(action)
-                print('step rwd=', rwd, ',action=', action, "obs=", obs)
-                rwd_sum += rwd
-                if done:
-                    print('end this episode, n_step=', n_step, ',max_step=', max_step)
-                    break
-
-            # update
-            n_episode += 1
-            print('episode = {}, rwd_sum= {}'.format(n_episode, rwd_sum))
-
-            # done?
-            if n_episode >= max_episodes:
-                break
-    except KeyboardInterrupt:
-        pass
-    finally:
-        elapsed_time = time.time() - start_time
-        print("Took %.3f seconds for %s steps: %.3f fps" % (
-            elapsed_time, total_frames, total_frames / elapsed_time))
 
 def main(unused_argv):
-    stopwatch.sw.enabled = FLAGS.profile or FLAGS.trace
-    stopwatch.sw.trace = FLAGS.trace
+    #env = gym.make("SC2GYMENV-v0")
+    #env.settings['map_name'] = 'ScoutSimple64'
 
     rs = FLAGS.random_seed
     if FLAGS.random_seed is None:
         rs = int((time.time() % 1) * 1000000)
-
-    map_name = maps.get(FLAGS.map)  # Assert the map exists.   
-    #agent_module, agent_name = FLAGS.agent.rsplit(".", 1)
-    #agent_cls = getattr(importlib.import_module(agent_module), agent_name)
 
     env = ZergScoutEnv(
             map_name=FLAGS.map,
@@ -130,21 +72,28 @@ def main(unused_argv):
             disable_fog=FLAGS.disable_fog,
             visualize=FLAGS.render
         )
+
     env = ZergScoutActWrapper(env)
     env = SkipFrame(env)
     env = ZergScoutRwdWrapper(env)
     env =ZergScoutObsWrapper(env)
     env = ZergScoutWrapper(env)
 
-    print('unwrapped_env=', env.unwrapped)
-    #agent = agent_cls(**agent_kwargs)
-    agent = RandomAgent(env.unwrapped.action_space)
-    run_loop(agent, env, max_episodes=FLAGS.max_agent_episodes, max_step=FLAGS.max_step)
-    if FLAGS.save_replay:
-        env.unwrapped.save_replay('save')
+    model = deepq.models.mlp([64, 64])
 
-    if FLAGS.profile:
-        print(stopwatch.sw)
+    act = deepq.learn(
+        env,
+        q_func=model,
+        lr=1e-3,
+        max_timesteps=1000,
+        buffer_size=10000,
+        exploration_fraction=0.1,
+        exploration_final_eps=0.02,
+        print_freq=10,
+        callback=callback
+    )
+    print("Saving model to scout_model.pkl")
+    act.save("scout_model.pkl")
 
 def entry_point():  # Needed so setup.py scripts work.
     app.run(main)

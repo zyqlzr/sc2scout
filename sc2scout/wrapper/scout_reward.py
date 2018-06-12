@@ -27,7 +27,7 @@ class HomeReward(Reward):
             self.rwd = self.w * -1
         else:
             self.rwd = 0
-        print('home_rwd=', self.rwd)
+        #print('home_rwd=', self.rwd)
         self._last_dist = tmp_dist
 
     def _compute_dist(self, env):
@@ -48,14 +48,14 @@ class EnemyBaseReward(Reward):
 
     def compute_rwd(self, obs, reward, env):
         tmp_dist = self._compute_dist(env)
-        if tmp_dist > self._last_dist:
+        if tmp_dist < self._last_dist:
             self.rwd = self.w * 1
-        elif tmp_dist < self._last_dist:
+        elif tmp_dist > self._last_dist:
             self.rwd = self.w * -1
         else:
             self.rwd = 0
         self._last_dist = tmp_dist
-        print('enemy_rwd=', self.rwd)
+        #print('enemy_rwd=', self.rwd)
 
     def _compute_dist(self, env):
         scout = env.scout()

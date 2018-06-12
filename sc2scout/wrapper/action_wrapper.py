@@ -16,6 +16,7 @@ class ScoutMove(Enum):
   LOWER_LEFT = 5
   LOWER_RIGHT = 6
   UPPER_RIGHT = 7
+  NOOP = 8
 
 scout_action_dict = {0: 'upper',
                1: 'left',
@@ -24,7 +25,8 @@ scout_action_dict = {0: 'upper',
                4: 'upper-left',
                5: 'lower-left',
                6: 'lower-right',
-               7: 'upper-right'
+               7: 'upper-right',
+               8: 'noop'
               }
 
 MOVE_RANGE = 1.0
@@ -35,7 +37,6 @@ class ZergScoutActWrapper(gym.ActionWrapper):
         self._scout = None
 
     def _reset(self):
-        print('*****action wrapper reset*****')
         obs = self.env._reset()
         self._scout = self.env.unwrapped.scout()
         return obs
