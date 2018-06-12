@@ -11,7 +11,7 @@ from absl import flags
 import time
 
 FLAGS = flags.FLAGS
-flags.DEFINE_bool("render", True, "Whether to render with pygame.")
+flags.DEFINE_bool("render", False, "Whether to render with pygame.")
 flags.DEFINE_integer("screen_resolution", 84,
                      "Resolution for screen feature layers.")
 flags.DEFINE_integer("minimap_resolution", 64,
@@ -79,13 +79,13 @@ def main(unused_argv):
     env =ZergScoutObsWrapper(env)
     env = ZergScoutWrapper(env)
 
-    model = deepq.models.mlp([64, 64])
+    model = deepq.models.mlp([64, 32])
 
     act = deepq.learn(
         env,
         q_func=model,
         lr=1e-3,
-        max_timesteps=1000,
+        max_timesteps=100000,
         buffer_size=10000,
         exploration_fraction=0.1,
         exploration_final_eps=0.02,

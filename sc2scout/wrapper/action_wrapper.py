@@ -50,6 +50,7 @@ class ZergScoutActWrapper(gym.ActionWrapper):
         if pos is None:
             return [[self._noop()]]
         else:
+            print('action={},pos={}'.format(action, pos))
             return [[self._move_to_target(pos)]]
 
     def _reverse_action(self, action):
