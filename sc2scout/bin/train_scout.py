@@ -18,7 +18,7 @@ flags.DEFINE_integer("minimap_resolution", 64,
                      "Resolution for minimap feature layers.")
 
 flags.DEFINE_integer("max_agent_episodes", 1, "Total agent episodes.")
-flags.DEFINE_integer("max_step", 100, "Game steps per episode.")
+flags.DEFINE_integer("max_step", 8000, "Game steps per episode.")
 flags.DEFINE_integer("step_mul", 8, "Game steps per agent step.")
 flags.DEFINE_integer("random_seed", None, "Random_seed used in game_core.")
 
@@ -85,7 +85,7 @@ def main(unused_argv):
         env,
         q_func=model,
         lr=1e-3,
-        max_timesteps=100000,
+        max_timesteps=200000,
         buffer_size=10000,
         exploration_fraction=0.1,
         exploration_final_eps=0.02,
