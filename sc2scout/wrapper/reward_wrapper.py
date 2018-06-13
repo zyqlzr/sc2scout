@@ -6,7 +6,8 @@ class ZergScoutRwdWrapper(gym.Wrapper):
         super(ZergScoutRwdWrapper, self).__init__(env)
         self._rewards = [sr.HomeReward(), 
                          sr.EnemyBaseReward(), 
-                         sr.ViewEnemyReward()]
+                         sr.ViewEnemyReward(),
+                         sr.MinDistReward()]
 
     def _reset(self):
         obs = self.env._reset()

@@ -88,8 +88,8 @@ class ZergScoutActWrapper(gym.ActionWrapper):
         elif action == ScoutMove.LOWER_RIGHT.value:
             pos = (scout.float_attr.pos_x - MOVE_RANGE,
                    scout.float_attr.pos_y - MOVE_RANGE)
-            print('action lower_right,scout:{} pos:{}'.format(
-                   (scout.float_attr.pos_x, scout.float_attr.pos_y), pos))
+            #print('action lower_right,scout:{} pos:{}'.format(
+            #       (scout.float_attr.pos_x, scout.float_attr.pos_y), pos))
         elif action == ScoutMove.UPPER_RIGHT.value:
             pos = (scout.float_attr.pos_x - MOVE_RANGE,
                    scout.float_attr.pos_y + MOVE_RANGE)

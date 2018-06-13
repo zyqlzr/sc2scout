@@ -89,3 +89,38 @@ class ViewEnemyReward(Reward):
                 self._unit_set.add(eu)
 
         self.rwd = count * self.w
+
+MIN_DIST_ERROR = 0.5
+
+class MinDistReward(Reward):
+    def __init__(self):
+        super(MinDistReward, self).__init__(1)
+        self._min_dist = None
+
+    def reset(self, obs, env):
+        self._min_dist = self._compute_dist(env)
+
+    def compute_rwd(self, obs, reward, env):
+        tmp_dist = self._compute_dist(env)
+        if tmp_dist > self._min_dist + MIN_DIST_ERROR:
+            self.rwd = self.w * -1
+        else:
+            self.rwd = self.w * 1
+
+        if self._min_dist > tmp_dist:
+            self._min_dist = tmp_dist
+
+    def _compute_dist(self, env):
+        scout = env.scout()
+        home = env.owner_base()
+        enemy_base = env.enemy_base()
+        home_dist = sm.calculate_distance(scout.float_attr.pos_x, 
+                                     scout.float_attr.pos_y, 
+                                     home[0], home[1])
+
+        enemy_dist = sm.calculate_distance(scout.float_attr.pos_x, 
+                                     scout.float_attr.pos_y, 
+                                     enemy_base[0], enemy_base[1])
+        return (home_dist + enemy_dist)
+
+
