@@ -1,4 +1,5 @@
 from baselines import deepq
+from baselines import logger
 
 from pysc2 import maps
 from pysc2.env import sc2_env
@@ -11,7 +12,7 @@ from absl import flags
 import time
 
 FLAGS = flags.FLAGS
-flags.DEFINE_bool("render", False, "Whether to render with pygame.")
+flags.DEFINE_bool("render", True, "Whether to render with pygame.")
 flags.DEFINE_integer("screen_resolution", 84,
                      "Resolution for screen feature layers.")
 flags.DEFINE_integer("minimap_resolution", 64,
@@ -22,6 +23,9 @@ flags.DEFINE_integer("max_step", 4000, "Game steps per episode.")
 flags.DEFINE_integer("step_mul", 8, "Game steps per agent step.")
 flags.DEFINE_integer("random_seed", None, "Random_seed used in game_core.")
 
+flags.DEFINE_string("train_log_dir", './log', "train log directory")
+flags.DEFINE_string("checkpoint_path", None, "load saved model")
+flags.DEFINE_integer("checkpoint_freq", 1000, "load saved model")
 flags.DEFINE_string("agent", "pysc2.agents.random_agent.RandomAgent",
                     "Which agent to run")
 flags.DEFINE_string("agent_config", "",
@@ -42,13 +46,18 @@ flags.DEFINE_bool("save_replay", True, "Whether to save a replay at the end.")
 flags.DEFINE_string("map", None, "Name of a map to use.")
 flags.mark_flag_as_required("map")
 
+last_done_step = 0 
 
 def callback(lcl, _glb):
     # stop training if reward exceeds 199
-    #is_solved = lcl['t'] > 100 and sum(lcl['episode_rewards'][-101:-1]) / 100 >= 199
-    is_solved = False
-    return is_solved
-
+    step = lcl['t']
+    reset_flag = lcl['reset']
+    if reset_flag:
+        global last_done_step
+        logger.log('last_done_step={} step={} last_episode_rwd={}'.format(
+                last_done_step, step, lcl['episode_rewards'][-2:-1]))
+        last_done_step = step
+    return False
 
 def main(unused_argv):
     #env = gym.make("SC2GYMENV-v0")
@@ -73,6 +82,8 @@ def main(unused_argv):
             visualize=FLAGS.render
         )
 
+    logger.configure(dir=FLAGS.train_log_dir, format_strs=['log'])
+
     env = ZergScoutActWrapper(env)
     env = SkipFrame(env)
     env = ZergScoutRwdWrapper(env)
@@ -85,10 +96,12 @@ def main(unused_argv):
         env,
         q_func=model,
         lr=1e-3,
-        max_timesteps=4000,
+        max_timesteps=2000,
         buffer_size=10000,
         exploration_fraction=0.1,
         exploration_final_eps=0.02,
+        checkpoint_path=FLAGS.checkpoint_path,
+        checkpoint_freq=FLAGS.checkpoint_freq,
         print_freq=10,
         callback=callback
     )
