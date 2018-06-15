@@ -24,7 +24,7 @@ flags.DEFINE_integer("step_mul", 8, "Game steps per agent step.")
 flags.DEFINE_integer("random_seed", None, "Random_seed used in game_core.")
 
 flags.DEFINE_string("train_log_dir", './log', "train log directory")
-flags.DEFINE_string("checkpoint_path", None, "load saved model")
+flags.DEFINE_string("checkpoint_path", './model_save', "load saved model")
 flags.DEFINE_integer("checkpoint_freq", 10000, "load saved model")
 flags.DEFINE_string("agent", "pysc2.agents.random_agent.RandomAgent",
                     "Which agent to run")
