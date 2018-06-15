@@ -3,9 +3,8 @@ from baselines import deepq
 from pysc2 import maps
 from pysc2.env import sc2_env
 from sc2scout.envs import ZergScoutEnv
-from sc2scout.wrapper import ZergScoutActWrapper, ZergScoutWrapper, \
-ZergScoutRwdWrapper, SkipFrame, ZergScoutObsWrapper
 from sc2scout.agents import RandomAgent
+from sc2scout.wrapper import make
 
 from absl import app
 from absl import flags
@@ -28,6 +27,7 @@ flags.DEFINE_string("agent", "pysc2.agents.random_agent.RandomAgent",
 flags.DEFINE_string("agent_config", "",
                     "Agent's config in py file. Pass it as python module."
                     "E.g., tstarbot.agents.dft_config")
+flags.DEFINE_string("wrapper", None, "the name of wrapper")
 flags.DEFINE_enum("agent_race", None, sc2_env.races.keys(), "Agent's race.")
 flags.DEFINE_enum("bot_race", None, sc2_env.races.keys(), "Bot's race.")
 flags.DEFINE_enum("difficulty", None, sc2_env.difficulties.keys(),
@@ -42,6 +42,7 @@ flags.DEFINE_bool("save_replay", True, "Whether to save a replay at the end.")
 
 flags.DEFINE_string("map", None, "Name of a map to use.")
 flags.mark_flag_as_required("map")
+flags.mark_flag_as_required("wrapper")
 
 
 def callback(lcl, _glb):
@@ -77,11 +78,7 @@ def main(unused_argv):
             visualize=FLAGS.render
         )
 
-    env = ZergScoutActWrapper(env)
-    env = SkipFrame(env)
-    env = ZergScoutRwdWrapper(env)
-    env =ZergScoutObsWrapper(env)
-    env = ZergScoutWrapper(env)
+    env = make(FLAGS.wrapper, env)
 
     model = deepq.models.mlp([64, 32])
     model_dir= FLAGS.model_dir

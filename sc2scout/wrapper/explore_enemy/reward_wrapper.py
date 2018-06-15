@@ -1,5 +1,5 @@
 import gym
-from sc2scout.wrapper import scout_reward as sr
+from sc2scout.wrapper.explore_enemy import scout_reward as sr
 
 class ZergScoutRwdWrapper(gym.Wrapper):
     def __init__(self, env):
