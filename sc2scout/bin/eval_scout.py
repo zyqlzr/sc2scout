@@ -22,7 +22,7 @@ flags.DEFINE_integer("max_agent_episodes", 1, "Total agent episodes.")
 flags.DEFINE_integer("max_step", 4000, "Game steps per episode.")
 flags.DEFINE_integer("step_mul", 8, "Game steps per agent step.")
 flags.DEFINE_integer("random_seed", None, "Random_seed used in game_core.")
-
+flags.DEFINE_string("model_dir", None, "model directory")
 flags.DEFINE_string("agent", "pysc2.agents.random_agent.RandomAgent",
                     "Which agent to run")
 flags.DEFINE_string("agent_config", "",
@@ -54,6 +54,9 @@ def callback(lcl, _glb):
 def main(unused_argv):
     #env = gym.make("SC2GYMENV-v0")
     #env.settings['map_name'] = 'ScoutSimple64'
+    if FLAGS.model_dir is None:
+        print("please input --model_dir xxxxx")
+        return
 
     rs = FLAGS.random_seed
     if FLAGS.random_seed is None:
@@ -80,7 +83,9 @@ def main(unused_argv):
     env =ZergScoutObsWrapper(env)
     env = ZergScoutWrapper(env)
 
-    act = deepq.load("scout_model.pkl")
+    model = deepq.models.mlp([64, 32])
+    model_dir= FLAGS.model_dir
+    act = deepq.load_model(env, model, model_dir)
 
     try:
         obs = env.reset()
@@ -101,6 +106,7 @@ def main(unused_argv):
     finally:
         print("evaluation over")
     env.unwrapped.save_replay('evaluate')
+    env.close()
 
 def entry_point():  # Needed so setup.py scripts work.
     app.run(main)

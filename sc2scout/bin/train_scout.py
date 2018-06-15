@@ -25,7 +25,7 @@ flags.DEFINE_integer("random_seed", None, "Random_seed used in game_core.")
 
 flags.DEFINE_string("train_log_dir", './log', "train log directory")
 flags.DEFINE_string("checkpoint_path", None, "load saved model")
-flags.DEFINE_integer("checkpoint_freq", 1000, "load saved model")
+flags.DEFINE_integer("checkpoint_freq", 10000, "load saved model")
 flags.DEFINE_string("agent", "pysc2.agents.random_agent.RandomAgent",
                     "Which agent to run")
 flags.DEFINE_string("agent_config", "",
@@ -96,7 +96,7 @@ def main(unused_argv):
         env,
         q_func=model,
         lr=1e-3,
-        max_timesteps=2000,
+        max_timesteps=1000,
         buffer_size=10000,
         exploration_fraction=0.1,
         exploration_final_eps=0.02,
@@ -105,8 +105,6 @@ def main(unused_argv):
         print_freq=10,
         callback=callback
     )
-    print("Saving model to scout_model.pkl")
-    act.save("scout_model.pkl")
 
 def entry_point():  # Needed so setup.py scripts work.
     app.run(main)
