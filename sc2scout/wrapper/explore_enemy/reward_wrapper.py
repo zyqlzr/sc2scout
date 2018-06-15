@@ -1,12 +1,13 @@
 import gym
-from sc2scout.wrapper import scout_reward as sr
+from sc2scout.wrapper.explore_enemy import scout_reward as sr
 
 class ZergScoutRwdWrapper(gym.Wrapper):
     def __init__(self, env):
         super(ZergScoutRwdWrapper, self).__init__(env)
         self._rewards = [sr.HomeReward(), 
                          sr.EnemyBaseReward(), 
-                         sr.ViewEnemyReward()]
+                         sr.ViewEnemyReward(),
+                         sr.MinDistReward()]
 
     def _reset(self):
         obs = self.env._reset()

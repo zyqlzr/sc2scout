@@ -1,5 +1,5 @@
-from sc2scout.wrapper.action_wrapper import ZergScoutActWrapper
-from sc2scout.wrapper.zerg_scout_wrapper import ZergScoutWrapper
-from sc2scout.wrapper.reward_wrapper import ZergScoutRwdWrapper
-from sc2scout.wrapper.auxiliary_wrapper import SkipFrame
-from sc2scout.wrapper.observation_wrapper import ZergScoutObsWrapper
+from sc2scout.wrapper.wrapper_factory import make, register
+from sc2scout.wrapper.explore_enemy import ExploreMakerV0
+
+register('explore_v0', ExploreMakerV0())
+
