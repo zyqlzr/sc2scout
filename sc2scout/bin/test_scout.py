@@ -9,6 +9,7 @@ from sc2scout.wrapper import make, model
 from absl import app
 from absl import flags
 import time
+import random
 
 FLAGS = flags.FLAGS
 flags.DEFINE_bool("render", True, "Whether to render with pygame.")
@@ -55,9 +56,9 @@ def callback(lcl, _glb):
 def main(unused_argv):
     #env = gym.make("SC2GYMENV-v0")
     #env.settings['map_name'] = 'ScoutSimple64'
-    if FLAGS.model_dir is None:
-        print("please input --model_dir xxxxx")
-        return
+    #if FLAGS.model_dir is None:
+    #    print("please input --model_dir xxxxx")
+    #    return
 
     rs = FLAGS.random_seed
     if FLAGS.random_seed is None:
@@ -79,11 +80,13 @@ def main(unused_argv):
         )
 
     env = make(FLAGS.wrapper, env)
-
     network = model(FLAGS.wrapper)#deepq.models.mlp([64, 32])
     model_dir= FLAGS.model_dir
-    act = deepq.load_model(env, network, model_dir)
+    #act = deepq.load_model(env, network, model_dir)
 
+    random_support = False
+    total_rwd = 0.0
+    act_val = 5
     try:
         obs = env.reset()
         n_step = 0
@@ -91,12 +94,17 @@ def main(unused_argv):
         while True:
             n_step += 1
             #print('observation=', obs, 'observation_none=', obs[None])
-            action = act(obs[None])[0]
-            obs, rwd, done, _ = env.step(action)
+            action = act_val#act(obs[None])[0]
+            obs, rwd, done, other = env.step(action)
             print('action=', action, '; rwd=', rwd)
+            total_rwd += rwd
+            if other:
+                act_val = 7
+            if random_support:
+                act_val = random.randint(0, 8)
             #print('step rwd=', rwd, ',action=', action, "obs=", obs)
             if done:
-                print("game over")
+                print("game over, total_rwd=", total_rwd)
                 break
     except KeyboardInterrupt:
         pass

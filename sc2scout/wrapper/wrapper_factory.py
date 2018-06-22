@@ -6,6 +6,8 @@ class WrapperMaker(object):
     def make_wrapper(self, env):
         raise NotImplementedError
 
+    def model_wrapper(self):
+        raise NotImplementedError
 
 class MakerFactory(object):
     def __init__(self):
@@ -26,6 +28,15 @@ class MakerFactory(object):
             print('can not find wrapper maker ', name)
             return None
 
+    def model(self, name):
+        if name in self.makers:
+            maker = self.makers[name]
+            return maker.model_wrapper()
+        else:
+            print('can not find wrapper maker ', name)
+            return None
+
+
 GlobalMakerFactory = MakerFactory()
 
 def register(name, maker):
@@ -34,3 +45,5 @@ def register(name, maker):
 def make(name, env):
     return GlobalMakerFactory.make(name, env)
 
+def model(name):
+    return GlobalMakerFactory.model(name)

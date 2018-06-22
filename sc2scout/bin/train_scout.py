@@ -4,7 +4,7 @@ from baselines import logger
 from pysc2 import maps
 from pysc2.env import sc2_env
 from sc2scout.envs import ZergScoutEnv
-from sc2scout.wrapper.wrapper_factory import make
+from sc2scout.wrapper.wrapper_factory import make, model
 
 from absl import app
 from absl import flags
@@ -24,7 +24,7 @@ flags.DEFINE_integer("random_seed", None, "Random_seed used in game_core.")
 
 flags.DEFINE_string("train_log_dir", './log', "train log directory")
 flags.DEFINE_string("checkpoint_path", './model_save', "load saved model")
-flags.DEFINE_integer("checkpoint_freq", 10000, "load saved model")
+flags.DEFINE_integer("checkpoint_freq", 5000, "load saved model")
 flags.DEFINE_string("agent", "pysc2.agents.random_agent.RandomAgent",
                     "Which agent to run")
 flags.DEFINE_string("agent_config", "",
@@ -87,13 +87,13 @@ def main(unused_argv):
 
     env = make(FLAGS.wrapper, env)
 
-    model = deepq.models.mlp([64, 32])
+    network = model(FLAGS.wrapper) #deepq.models.mlp([64, 32])
 
     act = deepq.learn(
         env,
-        q_func=model,
+        q_func=network,
         lr=1e-3,
-        max_timesteps=1000,
+        max_timesteps=200000,
         buffer_size=10000,
         exploration_fraction=0.1,
         exploration_final_eps=0.02,
