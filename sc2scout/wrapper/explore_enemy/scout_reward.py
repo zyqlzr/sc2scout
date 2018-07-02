@@ -274,4 +274,37 @@ class OnewayFinalReward(Reward):
         self._dest.check_hit(pos)
         self._dest.check_leave(pos)
 
+class RoundTripFinalReward(Reward):
+    def __init__(self, weight=50):
+        super(RoundTripFinalReward, self).__init__(weight)
+
+    def reset(self, obs, env):
+        self._dest = DestRange(env.enemy_base())
+        self._src = DestRange(env.owner_base())
+
+    def compute_rwd(self, obs, reward, done, env):
+        scout = env.scout()
+        pos = (scout.float_attr.pos_x, scout.float_attr.pos_y)
+        self._check_dest(pos)
+        self._check_src(pos)
+        if done:
+            if self._dest.hit and self._src.hit:
+                self.rwd = self.w * 2
+            elif self._dest.enter and self._src.enter:
+                self.rwd = self.w * 1
+            else:
+                self.rwd = self.w * -1
+        else:
+            self.rwd
+
+    def _check_dest(self, pos):
+        self._dest.check_enter(pos)
+        self._dest.check_hit(pos)
+        self._dest.check_leave(pos)
+
+    def _check_src(self, pos):
+        self._src.check_enter(pos)
+        self._src.check_hit(pos)
+        self._src.check_leave(pos)
+
 

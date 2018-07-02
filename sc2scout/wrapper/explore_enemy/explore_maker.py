@@ -4,7 +4,7 @@ from sc2scout.wrapper.explore_enemy.reward_wrapper import ZergScoutRwdWrapper, \
 ZergScoutRwdWrapperV1, ZergScoutRwdWrapperV2, ZergScoutRwdWrapperV3, \
 ZergScoutRwdWrapperV4, ZergScoutRwdWrapperV5
 from sc2scout.wrapper.explore_enemy.auxiliary_wrapper import SkipFrame, \
-TerminalWrapper, CourseJudgeWrapper
+TerminalWrapper, RoundTripTerminalWrapper
 from sc2scout.wrapper.explore_enemy.observation_wrapper import ZergScoutObsWrapper
 from sc2scout.wrapper.wrapper_factory import WrapperMaker
 
@@ -89,7 +89,7 @@ class ExploreMakerV4(WrapperMaker):
             raise Exception('input env is None')
         env = ZergScoutActWrapper(env)
         env = SkipFrame(env, skip_count=1)
-        env = CourseJudgeWrapper(env)
+        env = RoundTripTerminalWrapper(env)
         env = ZergScoutRwdWrapperV1(env)
         env = ZergScoutObsWrapper(env)
         env = ZergScoutWrapper(env)
@@ -106,7 +106,7 @@ class ExploreMakerV5(WrapperMaker):
         if env is None:
             raise Exception('input env is None')
         env = ZergScoutActWrapper(env)
-        env = CourseJudgeWrapper(env)
+        env = RoundTripTerminalWrapper(env)
         env = ZergScoutRwdWrapperV1(env)
         env = ZergScoutObsWrapper(env)
         env = ZergScoutWrapper(env)
@@ -142,7 +142,7 @@ class ExploreMakerV7(WrapperMaker):
             raise Exception('input env is None')
         env = ZergScoutActWrapper(env)
         env = SkipFrame(env)
-        env = CourseJudgeWrapper(env)
+        env = RoundTripTerminalWrapper(env)
         env = ZergScoutRwdWrapperV3(env)
         env = ZergScoutObsWrapper(env)
         env = ZergScoutWrapper(env)
@@ -178,7 +178,7 @@ class ExploreMakerV9(WrapperMaker):
             raise Exception('input env is None')
         env = ZergScoutActWrapper(env)
         env = SkipFrame(env)
-        env = CourseJudgeWrapper(env)
+        env = RoundTripTerminalWrapper(env)
         env = ZergScoutRwdWrapperV5(env)
         env = ZergScoutObsWrapper(env)
         env = ZergScoutWrapper(env)

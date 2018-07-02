@@ -80,13 +80,17 @@ class TerminalWrapper(gym.Wrapper):
             return True
         return done
 
-class CourseJudgeWrapper(gym.Wrapper):
+class RoundTripTerminalWrapper(gym.Wrapper):
     def __init__(self, env):
-        super(CourseJudgeWrapper, self).__init__(env)
-        self._arrived = False
+        super(RoundTripTerminalWrapper, self).__init__(env)
+        self._enemy_base = None
+        self._home_base = None
 
     def _reset(self):
-        return self.env._reset()
+        obs = self.env._reset()
+        self._enemy_base = DestRange(self.env.unwrapped.enemy_base())
+        self._home_base = DestRange(self.env.unwrapped.owner_base())
+        return obs
 
     def _step(self, action):
         obs, rwd, done, info = self.env._step(action)
@@ -94,34 +98,23 @@ class CourseJudgeWrapper(gym.Wrapper):
         return obs, rwd, self._check_terminal(obs, done), info
 
     def _check_terminal(self, obs, done):
-        if not self._arrived:
+        if self._enemy_base.enter and self._home_base.enter:
+            return True
+        else:
             return done
 
-        if self._check_home(obs):
-            print('***episode terminal while scout arrived***')
-            return True
-        return done
-
     def _judge_course(self, obs):
-        if not self._arrived:
-            self._arrived = self._check_arrived(obs)
-            return self._arrived
+        scout = self.env.unwrapped.scout()
+        pos = (scout.float_attr.pos_x, scout.float_attr.pos_y)
+        self._enemy_base.check_enter(pos)
+        self._enemy_base.check_hit(pos)
+        self._enemy_base.check_leave(pos)
+        self._home_base.check_enter(pos)
+        self._home_base.check_hit(pos)
+        self._home_base.check_leave(pos)
+
+        if self._enemy_base.enter:
+            return True 
         else:
-            return True
-
-    def _check_arrived(self, obs):
-        scout = self.env.unwrapped.scout()
-        enemy_base = self.env.unwrapped.enemy_base()
-        dist =  sm.calculate_distance(scout.float_attr.pos_x,
-                                     scout.float_attr.pos_y,
-                                     enemy_base[0], enemy_base[1])
-        return dist < MIN_DIST_ARANGE
-
-    def _check_home(self, obs):
-        scout = self.env.unwrapped.scout()
-        home = self.env.unwrapped.owner_base()
-        dist =  sm.calculate_distance(scout.float_attr.pos_x,
-                                     scout.float_attr.pos_y,
-                                     home[0], home[1])
-        return dist < MIN_DIST_ARANGE
+            return False
 
