@@ -1,4 +1,5 @@
 from sc2scout.envs import scout_macro as sm
+from sc2scout.wrapper.explore_enemy.scout_util import DestRange
 
 ARRIVED_DIST_GAP = 4
 
@@ -10,7 +11,7 @@ class Reward(object):
     def reset(self, obs, env):
         raise NotImplementedError
 
-    def compute_rwd(self, obs, reward, env):
+    def compute_rwd(self, obs, reward, done, env):
         raise NotImplementedError
 
 class HomeReward(Reward):
@@ -23,7 +24,7 @@ class HomeReward(Reward):
     def reset(self, obs, env):
         self._last_dist = self._compute_dist(env)
 
-    def compute_rwd(self, obs, reward, env):
+    def compute_rwd(self, obs, reward, done, env):
         tmp_dist = self._compute_dist(env)
         if self._back:
             if self._negative:
@@ -70,7 +71,7 @@ class HomeArrivedReward(Reward):
     def reset(self, obs, env):
         self._once = False
 
-    def compute_rwd(self, obs, reward, env):
+    def compute_rwd(self, obs, reward, done, env):
         if self._once:
             self.rwd = 0
             return
@@ -100,7 +101,7 @@ class EnemyBaseReward(Reward):
     def reset(self, obs, env):
         self._last_dist = self._compute_dist(env)
 
-    def compute_rwd(self, obs, reward, env):
+    def compute_rwd(self, obs, reward, done, env):
         tmp_dist = self._compute_dist(env)
         if self._back:
             if self._negative:
@@ -147,7 +148,7 @@ class EnemyBaseArrivedReward(Reward):
     def reset(self, obs, env):
         self._once = False
 
-    def compute_rwd(self, obs, reward, env):
+    def compute_rwd(self, obs, reward, done, env):
         if self._once:
             self.rwd = 0
             return
@@ -178,7 +179,7 @@ class ViewEnemyReward(Reward):
         self._unit_set = set([])
         self._enemy_base_once = False
 
-    def compute_rwd(self, obs, reward, env):
+    def compute_rwd(self, obs, reward, done, env):
         enemy_units = []
         find_base = False
         units = obs.observation['units']
@@ -215,7 +216,7 @@ class MinDistReward(Reward):
     def reset(self, obs, env):
         self._min_dist = self._compute_dist(env)
 
-    def compute_rwd(self, obs, reward, env):
+    def compute_rwd(self, obs, reward, done, env):
         tmp_dist = self._compute_dist(env)
         if self._negative:
             if tmp_dist > self._min_dist + MIN_DIST_ERROR:
@@ -243,5 +244,34 @@ class MinDistReward(Reward):
                                      scout.float_attr.pos_y, 
                                      enemy_base[0], enemy_base[1])
         return (home_dist + enemy_dist)
+
+class OnewayFinalReward(Reward):
+    def __init__(self, weight=50):
+        super(OnewayFinalReward, self).__init__(weight)
+
+    def reset(self, obs, env):
+        self._dest = DestRange(env.enemy_base())
+
+    def compute_rwd(self, obs, reward, done, env):
+        self._compute_rwd(env)
+        if done:
+            if self._dest.hit:
+                #print('compute final rwd, hit rwd=', self.w * 2)
+                self.rwd = self.w * 2
+            elif self._dest.enter:
+                #print('compute final rwd, enter rwd=', self.w * 1)
+                self.rwd = self.w * 1
+            else:
+                self.rwd = self.w * -1
+        else:
+            self.rwd = 0
+
+    def _compute_rwd(self, env):
+        scout = env.scout()
+        pos = (scout.float_attr.pos_x, scout.float_attr.pos_y)
+
+        self._dest.check_enter(pos)
+        self._dest.check_hit(pos)
+        self._dest.check_leave(pos)
 
 

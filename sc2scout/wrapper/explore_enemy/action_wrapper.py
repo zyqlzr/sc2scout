@@ -34,9 +34,12 @@ MOVE_RANGE = 1.0
 class ZergScoutActWrapper(gym.ActionWrapper):
     def __init__(self, env):
         super(ZergScoutActWrapper, self).__init__(env)
+        self._reverse = False
 
     def _reset(self):
         obs = self.env._reset()
+        self._reverse = self.judge_reverse()
+        print('action wrapper, reverse={}', self._reverse)
         return obs
 
     def _step(self, action):
@@ -54,6 +57,10 @@ class ZergScoutActWrapper(gym.ActionWrapper):
         raise NotImplementedError()
 
     def _calcuate_pos_by_action(self, action):
+        if self._reverse:
+            old_action = action
+            action = self.action_transfer(action)
+            print('reverse, action{}->{}'.format(old_action, action))
         scout = self.env.unwrapped.scout()
         if action == ScoutMove.UPPER.value:
             pos = (scout.float_attr.pos_x, 
@@ -114,4 +121,32 @@ class ZergScoutActWrapper(gym.ActionWrapper):
         action = sc_pb.Action()
         action.action_raw.unit_command.ability_id = tp.ABILITY_ID.INVALID.value
         return action
+
+    def action_transfer(self, action):
+        if action == ScoutMove.UPPER.value:
+            return ScoutMove.DOWN.value
+        elif action == ScoutMove.LEFT.value:
+            return ScoutMove.RIGHT.value
+        elif action == ScoutMove.DOWN.value:
+            return ScoutMove.UPPER.value
+        elif action == ScoutMove.RIGHT.value:
+            return ScoutMove.LEFT.value
+        elif action == ScoutMove.UPPER_LEFT.value:
+            return ScoutMove.LOWER_RIGHT.value
+        elif action == ScoutMove.LOWER_LEFT.value:
+            return ScoutMove.UPPER_RIGHT.value
+        elif action == ScoutMove.LOWER_RIGHT.value:
+            return ScoutMove.UPPER_LEFT.value
+        elif action == ScoutMove.UPPER_RIGHT.value:
+            return ScoutMove.LOWER_LEFT.value
+        else:
+            pos = None
+        return pos
+
+    def judge_reverse(self):
+        scout = self.env.unwrapped.scout()
+        if scout.float_attr.pos_x < scout.float_attr.pos_y:
+            return False
+        else:
+            return True
 

@@ -18,7 +18,7 @@ flags.DEFINE_integer("minimap_resolution", 64,
                      "Resolution for minimap feature layers.")
 
 flags.DEFINE_integer("max_agent_episodes", 1, "Total agent episodes.")
-flags.DEFINE_integer("max_step", 4000, "Game steps per episode.")
+flags.DEFINE_integer("max_step", 10000, "Game steps per episode.")
 flags.DEFINE_integer("step_mul", 8, "Game steps per agent step.")
 flags.DEFINE_integer("random_seed", None, "Random_seed used in game_core.")
 
@@ -40,24 +40,50 @@ flags.DEFINE_bool("disable_fog", False, "Turn off the Fog of War.")
 flags.DEFINE_bool("profile", False, "Whether to turn on code profiling.")
 flags.DEFINE_bool("trace", False, "Whether to trace the code execution.")
 flags.DEFINE_integer("parallel", 2, "How many instances to run in parallel.")
-
+flags.DEFINE_integer("max_episode_rwd", None, 'the max sum reward of episode')
 flags.DEFINE_bool("save_replay", True, "Whether to save a replay at the end.")
+
+flags.DEFINE_float('param_lr', 1e-4, 'learning rate')
+flags.DEFINE_integer('param_bf', 50000, 'buffer size')
+flags.DEFINE_float('param_ef', 0.1, 'explore_fraction')
+flags.DEFINE_float('param_efps', 0.02, 'exploration_final_eps')
 
 flags.DEFINE_string("map", None, "Name of a map to use.")
 flags.mark_flag_as_required("map")
 flags.mark_flag_as_required("wrapper")
 
+mean_rwd_gap = 5
 last_done_step = 0 
 
 def callback(lcl, _glb):
     # stop training if reward exceeds 199
     step = lcl['t']
     reset_flag = lcl['reset']
+    '''
     if reset_flag:
         global last_done_step
         logger.log('last_done_step={} step={} last_episode_rwd={}'.format(
                 last_done_step, step, lcl['episode_rewards'][-2:-1]))
         last_done_step = step
+    '''
+
+    if reset_flag:
+        global last_done_step
+        mr = lcl['mean_100ep_reward']
+        rwds = lcl['episode_rewards'][-2:-1]
+        logger.log('last_done_step={} step={} last_episode_rwd={}, mean_100ep_rwd={}'.format(
+                last_done_step, step, rwds, mr))
+        last_done_step = step
+        if FLAGS.max_episode_rwd is None or len(rwds) == 0:
+            return False
+
+        if mr <= (FLAGS.max_episode_rwd - mean_rwd_gap):
+            return False
+
+        if rwds[0] >= FLAGS.max_episode_rwd:
+            logger.log('episode reward get the max_reward, stop and save model, {} {}'.format(
+                    FLAGS.max_episode_rwd, rwds[0]))
+            return True
     return False
 
 def main(unused_argv):
@@ -89,14 +115,17 @@ def main(unused_argv):
 
     network = model(FLAGS.wrapper) #deepq.models.mlp([64, 32])
 
+    print('params, lr={} bf={} ef={} ef_eps={}'.format(
+            FLAGS.param_lr, FLAGS.param_bf, FLAGS.param_ef, FLAGS.param_efps))
+
     act = deepq.learn(
         env,
         q_func=network,
-        lr=1e-3,
-        max_timesteps=200000,
-        buffer_size=10000,
-        exploration_fraction=0.1,
-        exploration_final_eps=0.02,
+        lr=FLAGS.param_lr,
+        max_timesteps=100000,
+        buffer_size=FLAGS.param_bf,
+        exploration_fraction=FLAGS.param_ef,
+        exploration_final_eps=FLAGS.param_efps,
         checkpoint_path=FLAGS.checkpoint_path,
         checkpoint_freq=FLAGS.checkpoint_freq,
         print_freq=10,

@@ -160,9 +160,9 @@ class ExploreMakerV8(WrapperMaker):
             raise Exception('input env is None')
         env = ZergScoutActWrapper(env)
         env = SkipFrame(env)
+        env = TerminalWrapper(env)
         env = ZergScoutRwdWrapperV4(env)
         env = ZergScoutObsWrapper(env)
-        env = TerminalWrapper(env)
         env = ZergScoutWrapper(env)
         return env
 
@@ -187,4 +187,20 @@ class ExploreMakerV9(WrapperMaker):
     def model_wrapper(self):
         return deepq.models.mlp([64, 64, 32])
 
+class ExploreMakerV10(WrapperMaker):
+    def __init__(self):
+        super(ExploreMakerV10, self).__init__('expore_v10')
 
+    def make_wrapper(self, env):
+        if env is None:
+            raise Exception('input env is None')
+        env = ZergScoutActWrapper(env)
+        env = SkipFrame(env)
+        env = TerminalWrapper(env)
+        env = ZergScoutRwdWrapperV4(env)
+        env = ZergScoutObsWrapper(env)
+        env = ZergScoutWrapper(env)
+        return env
+
+    def model_wrapper(self):
+        return deepq.models.mlp([512, 256])

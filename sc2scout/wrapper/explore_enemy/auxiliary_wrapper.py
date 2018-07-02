@@ -1,5 +1,6 @@
 import gym
 from sc2scout.envs import scout_macro as sm
+from sc2scout.wrapper.explore_enemy.scout_util import DestRange
 
 class SkipFrame(gym.Wrapper):
     """ Skip specific no. of frames by executing noop or specified actions """
@@ -44,15 +45,17 @@ class SkipFrame(gym.Wrapper):
         print('skip scout pos={}'.format((scout.float_attr.pos_x, 
                                     scout.float_attr.pos_y)))
 
-MIN_DIST_ARANGE = 2
 
 class TerminalWrapper(gym.Wrapper):
     def __init__(self, env, max_step=4000):
         super(TerminalWrapper, self).__init__(env)
         self._max_step = max_step
+        self._enemy_base = None
 
     def _reset(self):
-        return self.env._reset()
+        obs = self.env._reset()
+        self._enemy_base = DestRange(self.env.unwrapped.enemy_base())
+        return obs
 
     def _step(self, action):
         obs, rwd, done, info = self.env._step(action)
@@ -62,18 +65,20 @@ class TerminalWrapper(gym.Wrapper):
         if done:
             return done
 
-        if self._check_arrived(obs):
-            print('***episode terminal while scout arrived***')
+        scout = self.env.unwrapped.scout()
+        pos = (scout.float_attr.pos_x, scout.float_attr.pos_y)
+
+        self._enemy_base.check_enter(pos)
+        self._enemy_base.check_hit(pos)
+        self._enemy_base.check_leave(pos)
+        if self._enemy_base.hit:
+            print('***episode terminal while scout hit ***')
+            return True
+
+        if self._enemy_base.enter and self._enemy_base.leave:
+            print('***episode terminal while scout enter and leave***')
             return True
         return done
-
-    def _check_arrived(self, obs):
-        scout = self.env.unwrapped.scout()
-        enemy_base = self.env.unwrapped.enemy_base()
-        dist =  sm.calculate_distance(scout.float_attr.pos_x,
-                                     scout.float_attr.pos_y,
-                                     enemy_base[0], enemy_base[1])
-        return dist < MIN_DIST_ARANGE
 
 class CourseJudgeWrapper(gym.Wrapper):
     def __init__(self, env):

@@ -6,6 +6,14 @@ import numpy as np
 
 RESOURCE_DISTANCE = 7.0
 
+MAP_SIZE = {
+    'Simple64': (88, 96),
+    'ScoutSimple64': (88, 96),
+    'AbyssalReef': (200, 176),
+    'ScoutAbyssalReef': (200, 176),
+    'Acolyte': (168, 200),
+}
+
 class ZergScoutEnv(SC2GymEnv):
     def __init__(self, **kwargs):
         super(ZergScoutEnv, self).__init__(**kwargs)
@@ -14,9 +22,15 @@ class ZergScoutEnv(SC2GymEnv):
         self._owner_base_pos = None
         self._enemy_base_pos = None
         self._base_candidates = []
+        self._map_size = None
+        self._init_map_size(kwargs['map_name'])
 
     def _init_action_space(self):
         self.action_space = gym.spaces.Discrete(8)
+
+    def _init_map_size(self, map_name):
+        self._map_size = MAP_SIZE[map_name]
+        print('map_name={}, MapSize={}'.format(map_name, self._map_size))
 
     def _reset(self):
         self._scout = None
@@ -46,6 +60,9 @@ class ZergScoutEnv(SC2GymEnv):
 
     def enemy_base(self):
         return self._enemy_base_pos
+
+    def map_size(self):
+        return self._map_size
 
     def _update(self, obs):
         units = obs.observation['units']
