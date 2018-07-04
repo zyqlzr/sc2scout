@@ -36,7 +36,7 @@ class ScoutVecFeature(FeatureExtractor):
         features.append(float(home_pos[0]) / self._map_size[0])
         features.append(float(home_pos[1]) / self._map_size[1])
         features.append(float(enemy_pos[0]) / self._map_size[0])
-        features.append(float(enemy_pos[1]) / self._map_size[1]])
+        features.append(float(enemy_pos[1]) / self._map_size[1])
 
         if self._dest.in_range(scout_raw_pos):
             features.append(float(1))

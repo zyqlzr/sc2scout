@@ -1,7 +1,7 @@
 import gym
 import numpy as np
 from gym.spaces import Box
-from sc2scout.wrapper.explore_enemy.feature.scout_vec_feature import ScoutVecFeature
+from sc2scout.wrapper.feature.scout_vec_feature import ScoutVecFeature
 
 class ZergScoutObsWrapper(gym.ObservationWrapper):
     def __init__(self, env):
@@ -40,8 +40,10 @@ class ZergScoutObsWrapper(gym.ObservationWrapper):
     def _observation(self, obs):
         scout = self.env.unwrapped.scout()
         scout_pos = self.pos_transfer(scout.float_attr.pos_x, scout.float_attr.pos_y)
-        home_pos = self.pos_transfer(self.env.unwrapped.owner_base())
-        enemy_pos = self.pos_transfer(self.env.unwrapped.enemy_base())
+        home_pos = self.env.unwrapped.owner_base()
+        enemy_pos = self.env.unwrapped.enemy_base()
+        home_pos = self.pos_transfer(home_pos[0], home_pos[1])
+        enemy_pos = self.pos_transfer(enemy_pos[0], enemy_pos[1])
         return np.array([float(scout_pos[0]) / self._map_size[0],
                          float(scout_pos[1]) / self._map_size[1],
                          float(home_pos[0]) / self._map_size[0],

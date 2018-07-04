@@ -1,6 +1,6 @@
 import gym
 from sc2scout.envs import scout_macro as sm
-from sc2scout.wrapper.explore_enemy.scout_util import DestRange
+from sc2scout.wrapper.util.dest_range import DestRange
 
 class SkipFrame(gym.Wrapper):
     """ Skip specific no. of frames by executing noop or specified actions """
@@ -85,11 +85,13 @@ class RoundTripTerminalWrapper(gym.Wrapper):
         super(RoundTripTerminalWrapper, self).__init__(env)
         self._enemy_base = None
         self._home_base = None
+        self._back = False
 
     def _reset(self):
         obs = self.env._reset()
         self._enemy_base = DestRange(self.env.unwrapped.enemy_base())
         self._home_base = DestRange(self.env.unwrapped.owner_base())
+        self._back = False
         return obs
 
     def _step(self, action):
@@ -98,7 +100,7 @@ class RoundTripTerminalWrapper(gym.Wrapper):
         return obs, rwd, self._check_terminal(obs, done), info
 
     def _check_terminal(self, obs, done):
-        if self._enemy_base.enter and self._home_base.enter:
+        if self._back and self._home_base.enter:
             return True
         else:
             return done
@@ -106,15 +108,17 @@ class RoundTripTerminalWrapper(gym.Wrapper):
     def _judge_course(self, obs):
         scout = self.env.unwrapped.scout()
         pos = (scout.float_attr.pos_x, scout.float_attr.pos_y)
-        self._enemy_base.check_enter(pos)
-        self._enemy_base.check_hit(pos)
-        self._enemy_base.check_leave(pos)
-        self._home_base.check_enter(pos)
-        self._home_base.check_hit(pos)
-        self._home_base.check_leave(pos)
-
-        if self._enemy_base.enter:
-            return True 
+        if not self._back:
+            self._enemy_base.check_enter(pos)
+            self._enemy_base.check_hit(pos)
+            self._enemy_base.check_leave(pos)
         else:
-            return False
+            self._home_base.check_enter(pos)
+            self._home_base.check_hit(pos)
+            self._home_base.check_leave(pos)
 
+        if self._enemy_base.enter and self._enemy_base.leave:
+            if not self._back:
+                self._back = True
+
+        return self._back
