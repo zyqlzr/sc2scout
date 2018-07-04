@@ -1,6 +1,8 @@
 import numpy as np
 from enum import Enum, unique
 
+from gym.spaces import Discrete
+
 from s2clientprotocol import sc2api_pb2 as sc_pb
 import pysc2.lib.typeenums as tp
 from pysc2.lib.typeenums import UNIT_TYPEID
@@ -39,6 +41,9 @@ class ScoutAction(Action):
 
     def reset(self):
         pass
+
+    def act_space(self):
+        return Discrete(8)
 
     def act(self, action):
         pos = self._calcuate_pos_by_action(action)

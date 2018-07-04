@@ -1,8 +1,7 @@
 from sc2scout.wrapper.explore_enemy.action_wrapper import ZergScoutActWrapper
 from sc2scout.wrapper.explore_enemy.zerg_scout_wrapper import ZergScoutWrapper
 from sc2scout.wrapper.explore_enemy.reward_wrapper import ZergScoutRwdWrapper, \
-ZergScoutRwdWrapperV1, ZergScoutRwdWrapperV2, ZergScoutRwdWrapperV3, \
-ZergScoutRwdWrapperV4, ZergScoutRwdWrapperV5
+ZergScoutRwdWrapperV2, ZergScoutRwdWrapperV4, ZergScoutRwdWrapperV5
 from sc2scout.wrapper.explore_enemy.auxiliary_wrapper import SkipFrame, \
 TerminalWrapper, RoundTripTerminalWrapper
 from sc2scout.wrapper.explore_enemy.observation_wrapper import ZergScoutObsWrapper
@@ -27,24 +26,6 @@ class ExploreMakerV0(WrapperMaker):
     def model_wrapper(self):
         return deepq.models.mlp([64, 32])
 
-class ExploreMakerV1(WrapperMaker):
-    def __init__(self):
-        super(ExploreMakerV1, self).__init__('expore_v1')
-
-    def make_wrapper(self, env):
-        if env is None:
-            raise Exception('input env is None')
-        env = ZergScoutActWrapper(env)
-        env = SkipFrame(env)
-        env = ZergScoutRwdWrapper(env)
-        env = ZergScoutObsWrapper(env)
-        env = TerminalWrapper(env)
-        env = ZergScoutWrapper(env)
-        return env
-
-    def model_wrapper(self):
-        return deepq.models.mlp([64, 32])
-
 class ExploreMakerV2(WrapperMaker):
     def __init__(self):
         super(ExploreMakerV2, self).__init__('explore_v2')
@@ -63,58 +44,6 @@ class ExploreMakerV2(WrapperMaker):
     def model_wrapper(self):
         return deepq.models.mlp([64, 32])
 
-class ExploreMakerV3(WrapperMaker):
-    def __init__(self):
-        super(ExploreMakerV3, self).__init__('explore_v3')
-
-    def make_wrapper(self, env):
-        if env is None:
-            raise Exception('input env is None')
-        env = ZergScoutActWrapper(env)
-        env = ZergScoutRwdWrapper(env)
-        env = ZergScoutObsWrapper(env)
-        env = TerminalWrapper(env)
-        env = ZergScoutWrapper(env)
-        return env
-
-    def model_wrapper(self):
-        return deepq.models.mlp([64, 32])
-
-class ExploreMakerV4(WrapperMaker):
-    def __init__(self):
-        super(ExploreMakerV4, self).__init__('explore_v4')
-
-    def make_wrapper(self, env):
-        if env is None:
-            raise Exception('input env is None')
-        env = ZergScoutActWrapper(env)
-        env = SkipFrame(env, skip_count=1)
-        env = RoundTripTerminalWrapper(env)
-        env = ZergScoutRwdWrapperV1(env)
-        env = ZergScoutObsWrapper(env)
-        env = ZergScoutWrapper(env)
-        return env
-
-    def model_wrapper(self):
-        return deepq.models.mlp([64, 64, 32])
-
-class ExploreMakerV5(WrapperMaker):
-    def __init__(self):
-        super(ExploreMakerV5, self).__init__('explore_v5')
-
-    def make_wrapper(self, env):
-        if env is None:
-            raise Exception('input env is None')
-        env = ZergScoutActWrapper(env)
-        env = RoundTripTerminalWrapper(env)
-        env = ZergScoutRwdWrapperV1(env)
-        env = ZergScoutObsWrapper(env)
-        env = ZergScoutWrapper(env)
-        return env
-
-    def model_wrapper(self):
-        return deepq.models.mlp([64, 64, 32])
-
 class ExploreMakerV6(WrapperMaker):
     def __init__(self):
         super(ExploreMakerV6, self).__init__('expore_v6')
@@ -132,24 +61,6 @@ class ExploreMakerV6(WrapperMaker):
 
     def model_wrapper(self):
         return deepq.models.mlp([64, 32])
-
-class ExploreMakerV7(WrapperMaker):
-    def __init__(self):
-        super(ExploreMakerV7, self).__init__('explore_v7')
-
-    def make_wrapper(self, env):
-        if env is None:
-            raise Exception('input env is None')
-        env = ZergScoutActWrapper(env)
-        env = SkipFrame(env)
-        env = RoundTripTerminalWrapper(env)
-        env = ZergScoutRwdWrapperV3(env)
-        env = ZergScoutObsWrapper(env)
-        env = ZergScoutWrapper(env)
-        return env
-
-    def model_wrapper(self):
-        return deepq.models.mlp([64, 64, 32])
 
 class ExploreMakerV8(WrapperMaker):
     def __init__(self):
@@ -185,7 +96,7 @@ class ExploreMakerV9(WrapperMaker):
         return env
 
     def model_wrapper(self):
-        return deepq.models.mlp([64, 64, 32])
+        return deepq.models.mlp([512, 256])
 
 class ExploreMakerV10(WrapperMaker):
     def __init__(self):
@@ -204,3 +115,4 @@ class ExploreMakerV10(WrapperMaker):
 
     def model_wrapper(self):
         return deepq.models.mlp([512, 256])
+

@@ -12,3 +12,6 @@ class Action(object):
     def reverse_act(self, action):
         raise NotImplementedError
 
+    def act_space(self):
+        raise NotImplementedError
+
