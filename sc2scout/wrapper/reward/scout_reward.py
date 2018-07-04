@@ -1,18 +1,8 @@
 from sc2scout.envs import scout_macro as sm
-from sc2scout.wrapper.explore_enemy.scout_util import DestRange
+from sc2scout.wrapper.reward.reward import Reward
+from sc2scout.wrapper.util.dest_range import DestRange
 
 ARRIVED_DIST_GAP = 4
-
-class Reward(object):
-    def __init__(self, w):
-        self.w = w
-        self.rwd = 0
-
-    def reset(self, obs, env):
-        raise NotImplementedError
-
-    def compute_rwd(self, obs, reward, done, env):
-        raise NotImplementedError
 
 class HomeReward(Reward):
     def __init__(self, back=False, negative=False):

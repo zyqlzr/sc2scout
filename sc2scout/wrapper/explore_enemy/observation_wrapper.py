@@ -1,6 +1,7 @@
 import gym
 import numpy as np
 from gym.spaces import Box
+from sc2scout.wrapper.explore_enemy.feature.scout_vec_feature import ScoutVecFeature
 
 class ZergScoutObsWrapper(gym.ObservationWrapper):
     def __init__(self, env):
@@ -38,12 +39,9 @@ class ZergScoutObsWrapper(gym.ObservationWrapper):
 
     def _observation(self, obs):
         scout = self.env.unwrapped.scout()
-        if self._reverse:
-            scout_pos = self.pos_transfer(scout.float_attr.pos_x, scout.float_attr.pos_y)
-        else:
-            scout_pos = (scout.float_attr.pos_x, scout.float_attr.pos_y)
-        home_pos = self.env.unwrapped.owner_base()
-        enemy_pos = self.env.unwrapped.enemy_base()
+        scout_pos = self.pos_transfer(scout.float_attr.pos_x, scout.float_attr.pos_y)
+        home_pos = self.pos_transfer(self.env.unwrapped.owner_base())
+        enemy_pos = self.pos_transfer(self.env.unwrapped.enemy_base())
         return np.array([float(scout_pos[0]) / self._map_size[0],
                          float(scout_pos[1]) / self._map_size[1],
                          float(home_pos[0]) / self._map_size[0],
@@ -52,6 +50,8 @@ class ZergScoutObsWrapper(gym.ObservationWrapper):
                          float(enemy_pos[1]) / self._map_size[1]])
 
     def pos_transfer(self, x, y):
+        if not self._reverse:
+            return (x, y)
         cx = self._map_size[0] / 2
         cy = self._map_size[1] / 2
         pos_x = 0.0
@@ -75,4 +75,37 @@ class ZergScoutObsWrapper(gym.ObservationWrapper):
         else:
             return True
 
+class ZergScoutRoundTripObsWrapper(gym.ObservationWrapper):
+    def __init__(self, env):
+        super(ZergScoutRoundTripObsWrapper, self).__init__(env)
+        self._init_obs_space()
+        self._map_size = self.env.unwrapped.map_size()
+        self._extractor = ScoutVecFeature()
+        self._curr_status = False
+
+    def _reset(self):
+        obs = self.env._reset()
+        self._extractor.reset(self.env)
+        self._curr_status = False
+        obs = self.observation(obs)
+        return obs
+
+    def _step(self, action):
+        obs, rwd, done, other = self.env._step(action)
+        self._curr_status = other
+        obs = self.observation(obs)
+        return obs, rwd, done, other
+
+    def _observation(self, obs):
+        features = self._extractor.extract(self.env, obs)
+        if self._curr_status:
+            features.append(float(1))
+        else:
+            features.append(float(0))
+        return np.array(features)
+
+    def _init_obs_space(self):
+        low = np.zeros(9)
+        high = np.ones(9)
+        return Box(low, high)
 
