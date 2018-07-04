@@ -117,7 +117,7 @@ class RoundTripTerminalWrapper(gym.Wrapper):
             self._home_base.check_hit(pos)
             self._home_base.check_leave(pos)
 
-        if self._enemy_base.enter and self._enemy_base.leave:
+        if (self._enemy_base.enter and self._enemy_base.leave) or self._enemy_base.hit:
             if not self._back:
                 self._back = True
 
