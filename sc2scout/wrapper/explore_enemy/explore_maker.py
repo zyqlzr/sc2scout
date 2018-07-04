@@ -4,7 +4,7 @@ from sc2scout.wrapper.explore_enemy.reward_wrapper import ZergScoutRwdWrapper, \
 ZergScoutRwdWrapperV2, ZergScoutRwdWrapperV4, ZergScoutRwdWrapperV5
 from sc2scout.wrapper.explore_enemy.auxiliary_wrapper import SkipFrame, \
 TerminalWrapper, RoundTripTerminalWrapper
-from sc2scout.wrapper.explore_enemy.observation_wrapper import ZergScoutObsWrapper
+from sc2scout.wrapper.explore_enemy.observation_wrapper import ZergScoutObsWrapper, ZergScoutRoundTripObsWrapper
 from sc2scout.wrapper.wrapper_factory import WrapperMaker
 
 from baselines import deepq
@@ -91,7 +91,7 @@ class ExploreMakerV9(WrapperMaker):
         env = SkipFrame(env)
         env = RoundTripTerminalWrapper(env)
         env = ZergScoutRwdWrapperV5(env)
-        env = ZergScoutObsWrapper(env)
+        env = ZergScoutRoundTripObsWrapper(env)
         env = ZergScoutWrapper(env)
         return env
 

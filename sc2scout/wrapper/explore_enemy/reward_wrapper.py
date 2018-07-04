@@ -34,11 +34,14 @@ class ScoutRoundTripRwd(gym.Wrapper):
         raise NotImplementedError
 
     def _reset(self):
+        self._assemble_reward()
         obs = self.env._reset()
         for fr in self._forward_rewards:
             fr.reset(obs, self.env.unwrapped)
         for br in self._backward_rewards:
             br.reset(obs, self.env.unwrapped)
+        for r in self._final_rewards:
+            r.reset(obs, self.env.unwrapped)
 
     def _step(self, action):
         obs, rwd, done, other = self.env._step(action)

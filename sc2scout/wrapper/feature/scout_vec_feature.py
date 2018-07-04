@@ -1,22 +1,25 @@
 from gym.spaces import Box
 from sc2scout.wrapper.feature.feature_extractor import FeatureExtractor
+from sc2scout.wrapper.util.dest_range import DestRange
 
 SCOUT_IN_RANGE = 1
 SCOUT_OUT_RANGE = 0
 
 class ScoutVecFeature(FeatureExtractor):
     def __init__(self):
-        super(ScoutAvoidImgFeature, self).__init__()
+        super(ScoutVecFeature, self).__init__()
         self._dest = None
         self._src = None
         self._reverse = False
         self._map_size = None
+        self.env = None
 
     def reset(self, env):
+        self.env = env
         self._dest = DestRange(env.unwrapped.enemy_base())
         self._src = DestRange(env.unwrapped.owner_base())
         self._map_size = self.env.unwrapped.map_size()
-        self._reverse = self.judge_reverse(env)
+        self._reverse = self._judge_reverse(env)
 
     def obs_space(self):
         low = np.zeros(8)
@@ -26,9 +29,11 @@ class ScoutVecFeature(FeatureExtractor):
     def extract(self, env, obs):
         scout = env.unwrapped.scout()
         scout_raw_pos = (scout.float_attr.pos_x, scout.float_attr.pos_y)
-        scout_pos = self._pos_transfer(scout_raw_pos)
-        home_pos = self._pos_transfer(env.unwrapped.owner_base())
-        enemy_pos = self._pos_transfer(env.unwrapped.enemy_base())
+        home_pos = env.unwrapped.owner_base()
+        enemy_pos = env.unwrapped.enemy_base()
+        scout_pos = self._pos_transfer(scout_raw_pos[0], scout_raw_pos[1])
+        home_pos = self._pos_transfer(home_pos[0], home_pos[1])
+        enemy_pos = self._pos_transfer(enemy_pos[0], enemy_pos[1])
 
         features = []
         features.append(float(scout_pos[0]) / self._map_size[0])

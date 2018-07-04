@@ -109,5 +109,5 @@ class ZergScoutRoundTripObsWrapper(gym.ObservationWrapper):
     def _init_obs_space(self):
         low = np.zeros(9)
         high = np.ones(9)
-        return Box(low, high)
+        self.observation_space = Box(low, high)
 
