@@ -21,6 +21,25 @@ class ScoutSimpleFeature(FeatureExtractor):
         high = np.ones(6)
         return Box(low, high)
 
+    def extract(self, env, obs):
+        scout = env.unwrapped.scout()
+        scout_raw_pos = (scout.float_attr.pos_x, scout.float_attr.pos_y)
+        home_pos = env.unwrapped.owner_base()
+        enemy_pos = env.unwrapped.enemy_base()
+        scout_pos = self._pos_transfer(scout_raw_pos[0], scout_raw_pos[1])
+        home_pos = self._pos_transfer(home_pos[0], home_pos[1])
+        enemy_pos = self._pos_transfer(enemy_pos[0], enemy_pos[1])
+
+        features = []
+        features.append(float(scout_pos[0]) / self._map_size[0])
+        features.append(float(scout_pos[1]) / self._map_size[1])
+        features.append(float(abs(home_pos[0] - scout_pos[0])) / self._map_size[0])
+        features.append(float(abs(home_pos[1] - scout_pos[1])) / self._map_size[1])
+        features.append(float(abs(enemy_pos[0] - scout_pos[0])) / self._map_size[0])
+        features.append(float(abs(enemy_pos[1] - scout_pos[1])) / self._map_size[1])
+
+        return features
+
     def _judge_reverse(self, env):
         scout = self.env.unwrapped.scout()
         if scout.float_attr.pos_x < scout.float_attr.pos_y:
@@ -80,10 +99,14 @@ class ScoutVecFeature(FeatureExtractor):
         features = []
         features.append(float(scout_pos[0]) / self._map_size[0])
         features.append(float(scout_pos[1]) / self._map_size[1])
-        features.append(float(home_pos[0]) / self._map_size[0])
-        features.append(float(home_pos[1]) / self._map_size[1])
-        features.append(float(enemy_pos[0]) / self._map_size[0])
-        features.append(float(enemy_pos[1]) / self._map_size[1])
+        #features.append(float(home_pos[0]) / self._map_size[0])
+        #features.append(float(home_pos[1]) / self._map_size[1])
+        #features.append(float(enemy_pos[0]) / self._map_size[0])
+        #features.append(float(enemy_pos[1]) / self._map_size[1])
+        features.append(float(abs(home_pos[0] - scout_pos[0]) / self._map_size[0])
+        features.append(float(abs(home_pos[1] - scout_pos[1])) / self._map_size[1])
+        features.append(float(abs(enemy_pos[0] - scout_pos[0])) / self._map_size[0])
+        features.append(float(abs(enemy_pos[1] - scout_pos[1])) / self._map_size[1])
 
         if self._dest.in_range(scout_raw_pos):
             features.append(float(1))
