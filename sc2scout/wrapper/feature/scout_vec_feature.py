@@ -1,4 +1,7 @@
 from gym.spaces import Box
+
+import numpy as np
+
 from sc2scout.wrapper.feature.feature_extractor import FeatureExtractor
 from sc2scout.wrapper.util.dest_range import DestRange
 
@@ -103,7 +106,7 @@ class ScoutVecFeature(FeatureExtractor):
         #features.append(float(home_pos[1]) / self._map_size[1])
         #features.append(float(enemy_pos[0]) / self._map_size[0])
         #features.append(float(enemy_pos[1]) / self._map_size[1])
-        features.append(float(abs(home_pos[0] - scout_pos[0]) / self._map_size[0])
+        features.append(float(abs(home_pos[0] - scout_pos[0])) / self._map_size[0])
         features.append(float(abs(home_pos[1] - scout_pos[1])) / self._map_size[1])
         features.append(float(abs(enemy_pos[0] - scout_pos[0])) / self._map_size[0])
         features.append(float(abs(enemy_pos[1] - scout_pos[1])) / self._map_size[1])

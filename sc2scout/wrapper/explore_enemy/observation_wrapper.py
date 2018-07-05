@@ -81,9 +81,9 @@ class ZergScoutObsWrapper(gym.ObservationWrapper):
 class ZergOnewayObsWrapper(gym.ObservationWrapper):
     def __init__(self, env):
         super(ZergOnewayObsWrapper, self).__init__(env)
-        self._init_obs_space()
         self._map_size = self.env.unwrapped.map_size()
         self._extractor = ScoutSimpleFeature()
+        self._init_obs_space()
 
     def _init_obs_space(self):
         self.observation_space = self._extractor.obs_space()
