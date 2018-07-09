@@ -1,7 +1,8 @@
 import gym
 import numpy as np
 from gym.spaces import Box
-from sc2scout.wrapper.feature.scout_vec_feature import ScoutVecFeature
+from sc2scout.wrapper.feature.scout_vec_feature import ScoutVecFeature, \
+ScoutSimpleFeature
 
 class ZergScoutObsWrapper(gym.ObservationWrapper):
     def __init__(self, env):
@@ -76,6 +77,31 @@ class ZergScoutObsWrapper(gym.ObservationWrapper):
             return False
         else:
             return True
+
+class ZergOnewayObsWrapper(gym.ObservationWrapper):
+    def __init__(self, env):
+        super(ZergOnewayObsWrapper, self).__init__(env)
+        self._map_size = self.env.unwrapped.map_size()
+        self._extractor = ScoutSimpleFeature()
+        self._init_obs_space()
+
+    def _init_obs_space(self):
+        self.observation_space = self._extractor.obs_space()
+
+    def _reset(self):
+        obs = self.env._reset()
+        self._extractor.reset(self.env)
+        obs = self.observation(obs)
+        return obs
+
+    def _step(self, action):
+        obs, rwd, done, other = self.env._step(action)
+        obs = self.observation(obs)
+        return obs, rwd, done, other
+
+    def _observation(self, obs):
+        features = self._extractor.extract(self.env, obs)
+        return np.array(features)
 
 class ZergScoutRoundTripObsWrapper(gym.ObservationWrapper):
     def __init__(self, env):

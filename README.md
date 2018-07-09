@@ -7,11 +7,11 @@ pip3 install -e .
 ## Usage:
 cd sc2scout/bin
 ### train
-python3 train_scout.py --map ScoutSimple64 --screen_resolution 64 --agent_race Z --bot_race Z
+python3 train_scout.py --map ScoutSimple64 --wrapper 'explore_v8' --checkpoint_path './model_v8'  --train_log_dir './log_v8'
 
 ### evaluate
-python3 eval_scout.py --map ScoutSimple64 --screen_resolution 64 --agent_race Z --bot_race Z
+python3 eval_scout.py --map ScoutSimple64 --wrapper 'explore_v8' --model_dir './model_save/model'
 
 ### randon agent
-python3 zerg_scout_agent.py --map ScoutSimple64 --screen_resolution 64 --agent_race Z --bot_race Z
+python3 zerg_scout_agent.py --map ScoutSimple64 --wrapper 'explore_v8'
 

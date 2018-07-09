@@ -18,41 +18,37 @@ from absl import flags
 import time
 import sc2scout
 from sc2scout.envs import SC2GymEnv, ZergScoutEnv
-from sc2scout.wrapper import ZergScoutActWrapper, ZergScoutWrapper, \
-ZergScoutRwdWrapper, SkipFrame, ZergScoutObsWrapper
 from sc2scout.agents import RandomAgent
+from sc2scout.wrapper import make, model
+from sc2scout.wrapper.util.sc2_params import races, difficulties
 
 FLAGS = flags.FLAGS
 flags.DEFINE_bool("render", True, "Whether to render with pygame.")
+
 flags.DEFINE_integer("screen_resolution", 84,
                      "Resolution for screen feature layers.")
 flags.DEFINE_integer("minimap_resolution", 64,
                      "Resolution for minimap feature layers.")
+flags.DEFINE_float("screen_ratio", "1.33",
+                   "Screen ratio of width / height")
+flags.DEFINE_string("agent_interface_format", "feature",
+                    "Agent Interface Format: [feature|rgb]")
 
 flags.DEFINE_integer("max_agent_episodes", 1, "Total agent episodes.")
 flags.DEFINE_integer("max_step", 0, "Game steps per episode.")
 flags.DEFINE_integer("step_mul", 8, "Game steps per agent step.")
 flags.DEFINE_integer("random_seed", None, "Random_seed used in game_core.")
+flags.DEFINE_string("wrapper", None, "the name of wrapper")
 
-flags.DEFINE_string("agent", "pysc2.agents.random_agent.RandomAgent",
-                    "Which agent to run")
-flags.DEFINE_string("agent_config", "",
-                    "Agent's config in py file. Pass it as python module."
-                    "E.g., tstarbot.agents.dft_config")
-flags.DEFINE_enum("agent_race", None, sc2_env.races.keys(), "Agent's race.")
-flags.DEFINE_enum("bot_race", None, sc2_env.races.keys(), "Bot's race.")
-flags.DEFINE_enum("difficulty", None, sc2_env.difficulties.keys(),
-                  "Bot's strength.")
-
+flags.DEFINE_enum("agent_race", 'Z', races.keys(), "Agent's race.")
+flags.DEFINE_enum("bot_race", 'Z', races.keys(), "Bot's race.")
+flags.DEFINE_string("difficulty", '9', "Bot's strength.")
 flags.DEFINE_bool("disable_fog", False, "Turn off the Fog of War.")
-flags.DEFINE_bool("profile", False, "Whether to turn on code profiling.")
-flags.DEFINE_bool("trace", False, "Whether to trace the code execution.")
-flags.DEFINE_integer("parallel", 2, "How many instances to run in parallel.")
-
 flags.DEFINE_bool("save_replay", True, "Whether to save a replay at the end.")
 
 flags.DEFINE_string("map", None, "Name of a map to use.")
 flags.mark_flag_as_required("map")
+flags.mark_flag_as_required("wrapper")
 
 
 def run_loop(agent, env, max_episodes=1, max_step=100):
@@ -105,39 +101,41 @@ def run_loop(agent, env, max_episodes=1, max_step=100):
             elapsed_time, total_frames, total_frames / elapsed_time))
 
 def main(unused_argv):
-    stopwatch.sw.enabled = FLAGS.profile or FLAGS.trace
-    stopwatch.sw.trace = FLAGS.trace
-
     rs = FLAGS.random_seed
     if FLAGS.random_seed is None:
         rs = int((time.time() % 1) * 1000000)
 
-    map_name = maps.get(FLAGS.map)  # Assert the map exists.   
-    #agent_module, agent_name = FLAGS.agent.rsplit(".", 1)
-    #agent_cls = getattr(importlib.import_module(agent_module), agent_name)
+    players = []
+    players.append(sc2_env.Bot(races[FLAGS.bot_race], difficulties[FLAGS.difficulty]))
+    players.append(sc2_env.Agent(races[FLAGS.agent_race]))
+
+    screen_res = (int(FLAGS.screen_ratio * FLAGS.screen_resolution) // 4 * 4,
+                  FLAGS.screen_resolution)
+    if FLAGS.agent_interface_format == 'feature':
+        agent_interface_format = sc2_env.AgentInterfaceFormat(
+        feature_dimensions = sc2_env.Dimensions(screen=screen_res,
+            minimap=FLAGS.minimap_resolution))
+    elif FLAGS.agent_interface_format == 'rgb':
+        agent_interface_format = sc2_env.AgentInterfaceFormat(
+        rgb_dimensions=sc2_env.Dimensions(screen=screen_res, 
+            minimap=FLAGS.minimap_resolution))
+    else:
+        raise NotImplementedError
 
     env = ZergScoutEnv(
             map_name=FLAGS.map,
-            agent_race=FLAGS.agent_race,
-            bot_race=FLAGS.bot_race,
-            difficulty=FLAGS.difficulty,
+            players=players,
             step_mul=FLAGS.step_mul,
             random_seed=rs,
             game_steps_per_episode=FLAGS.max_step,
-            screen_size_px=(FLAGS.screen_resolution, FLAGS.screen_resolution),
-            minimap_size_px=(FLAGS.minimap_resolution, FLAGS.minimap_resolution),
+            agent_interface_format=agent_interface_format,
             score_index=-1,  # this indicates the outcome is reward
             disable_fog=FLAGS.disable_fog,
             visualize=FLAGS.render
         )
-    env = ZergScoutActWrapper(env)
-    env = SkipFrame(env)
-    env = ZergScoutRwdWrapper(env)
-    env =ZergScoutObsWrapper(env)
-    env = ZergScoutWrapper(env)
 
-    print('unwrapped_env=', env.unwrapped)
-    #agent = agent_cls(**agent_kwargs)
+    env = make(FLAGS.wrapper, env)
+
     agent = RandomAgent(env.unwrapped.action_space)
     run_loop(agent, env, max_episodes=FLAGS.max_agent_episodes, max_step=FLAGS.max_step)
     if FLAGS.save_replay:
