@@ -1,2 +1,0 @@
-Logging to ./log
-input checkpoint_path=./model_save, td=./model_save
