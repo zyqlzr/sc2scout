@@ -64,6 +64,12 @@ class SC2GymEnv(gym.Env):
         print("env params:", self._kwargs)
         self._env = sc2_env.SC2Env(**self._kwargs)
 
+    def episode_length(self):
+        return self._env._episode_length
+
+    def curr_step(self):
+        return self._env._episode_steps
+
     def _close(self):
         if self._episode > 0:
             logger.info("Episode %d ended with reward %d after %d steps.",

@@ -9,6 +9,9 @@ RESOURCE_DISTANCE = 7.0
 MAP_SIZE = {
     'Simple64': (88, 96),
     'ScoutSimple64': (88, 96),
+    'ScoutSimple64WithQueue':(88,96),
+    'ScoutSimple64WithQueue_evade':(88,96),
+    'scout_evade':(32,32),
     'AbyssalReef': (200, 176),
     'ScoutAbyssalReef': (200, 176),
     'Acolyte': (168, 200),
@@ -123,6 +126,8 @@ class ZergScoutEnv(SC2GymEnv):
         tmp_minerals = []
         tmp_vespene = []
         for u in units:
+            # if u.int_attr.unit_type == UNIT_TYPEID.ZERG_QUEEN.value:
+            #     print(u.tag,u.unit_type,"#############")
             if self._check_base(u):
                 tmp_base.append(u)
             elif self._check_mineral(u):

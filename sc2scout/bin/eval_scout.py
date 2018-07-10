@@ -2,7 +2,7 @@ from baselines import deepq
 
 from pysc2 import maps
 from pysc2.env import sc2_env
-from sc2scout.envs import ZergScoutEnv
+from sc2scout.envs import ZergScoutEnv,ZergEvadeEnv
 from sc2scout.agents import RandomAgent
 from sc2scout.wrapper import make, model
 
@@ -12,24 +12,24 @@ import time
 
 FLAGS = flags.FLAGS
 flags.DEFINE_bool("render", True, "Whether to render with pygame.")
-flags.DEFINE_integer("screen_resolution", 84,
+flags.DEFINE_integer("screen_resolution", 64,
                      "Resolution for screen feature layers.")
 flags.DEFINE_integer("minimap_resolution", 64,
                      "Resolution for minimap feature layers.")
 
 flags.DEFINE_integer("max_agent_episodes", 1, "Total agent episodes.")
 flags.DEFINE_integer("max_step", 4000, "Game steps per episode.")
-flags.DEFINE_integer("step_mul", 8, "Game steps per agent step.")
+flags.DEFINE_integer("step_mul", 1, "Game steps per agent step.")
 flags.DEFINE_integer("random_seed", None, "Random_seed used in game_core.")
-flags.DEFINE_string("model_dir", None, "model directory")
+flags.DEFINE_string("model_dir", './model_save/evade_model/model6/', "model directory")
 flags.DEFINE_string("agent", "pysc2.agents.random_agent.RandomAgent",
                     "Which agent to run")
 flags.DEFINE_string("agent_config", "",
                     "Agent's config in py file. Pass it as python module."
                     "E.g., tstarbot.agents.dft_config")
-flags.DEFINE_string("wrapper", None, "the name of wrapper")
-flags.DEFINE_enum("agent_race", None, sc2_env.races.keys(), "Agent's race.")
-flags.DEFINE_enum("bot_race", None, sc2_env.races.keys(), "Bot's race.")
+flags.DEFINE_string("wrapper", 'evade_v0', "the name of wrapper")
+flags.DEFINE_enum("agent_race", 'Z', sc2_env.races.keys(), "Agent's race.")
+flags.DEFINE_enum("bot_race", 'Z', sc2_env.races.keys(), "Bot's race.")
 flags.DEFINE_enum("difficulty", None, sc2_env.difficulties.keys(),
                   "Bot's strength.")
 
@@ -40,7 +40,7 @@ flags.DEFINE_integer("parallel", 2, "How many instances to run in parallel.")
 
 flags.DEFINE_bool("save_replay", True, "Whether to save a replay at the end.")
 
-flags.DEFINE_string("map", None, "Name of a map to use.")
+flags.DEFINE_string("map", 'scout_evade', "Name of a map to use.")
 flags.mark_flag_as_required("map")
 flags.mark_flag_as_required("wrapper")
 
@@ -63,20 +63,35 @@ def main(unused_argv):
     if FLAGS.random_seed is None:
         rs = int((time.time() % 1) * 1000000)
 
-    env = ZergScoutEnv(
-            map_name=FLAGS.map,
-            agent_race=FLAGS.agent_race,
-            bot_race=FLAGS.bot_race,
-            difficulty=FLAGS.difficulty,
-            step_mul=FLAGS.step_mul,
-            random_seed=rs,
-            game_steps_per_episode=FLAGS.max_step,
-            screen_size_px=(FLAGS.screen_resolution, FLAGS.screen_resolution),
-            minimap_size_px=(FLAGS.minimap_resolution, FLAGS.minimap_resolution),
-            score_index=-1,  # this indicates the outcome is reward
-            disable_fog=FLAGS.disable_fog,
-            visualize=FLAGS.render
-        )
+    # env = ZergScoutEnv(
+    #         map_name=FLAGS.map,
+    #         agent_race=FLAGS.agent_race,
+    #         bot_race=FLAGS.bot_race,
+    #         difficulty=FLAGS.difficulty,
+    #         step_mul=FLAGS.step_mul,
+    #         random_seed=rs,
+    #         game_steps_per_episode=FLAGS.max_step,
+    #         screen_size_px=(FLAGS.screen_resolution, FLAGS.screen_resolution),
+    #         minimap_size_px=(FLAGS.minimap_resolution, FLAGS.minimap_resolution),
+    #         score_index=-1,  # this indicates the outcome is reward
+    #         disable_fog=FLAGS.disable_fog,
+    #         visualize=FLAGS.render
+    #     )
+
+    env = ZergEvadeEnv(
+        map_name=FLAGS.map,
+        agent_race=FLAGS.agent_race,
+        bot_race=FLAGS.bot_race,
+        difficulty=FLAGS.difficulty,
+        step_mul=FLAGS.step_mul,
+        random_seed=rs,
+        game_steps_per_episode=FLAGS.max_step,
+        screen_size_px=(FLAGS.screen_resolution, FLAGS.screen_resolution),
+        minimap_size_px=(FLAGS.minimap_resolution, FLAGS.minimap_resolution),
+        score_index=-1,  # this indicates the outcome is reward
+        disable_fog=FLAGS.disable_fog,
+        visualize=FLAGS.render
+    )
 
     env = make(FLAGS.wrapper, env)
 
