@@ -15,3 +15,5 @@ python3 eval_scout.py --map ScoutSimple64 --wrapper 'explore_v8' --model_dir './
 ### randon agent
 python3 zerg_scout_agent.py --map ScoutSimple64 --wrapper 'explore_v8'
 
+### train selfplay
+python3 train_scout_selfplay.py --map ScoutSimple64Dodge --wrapper explore_v8 --checkpoint_path ./model_v8 --train_log_dir ./log_v8 --norender
