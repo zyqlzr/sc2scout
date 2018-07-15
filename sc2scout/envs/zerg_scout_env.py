@@ -9,6 +9,7 @@ RESOURCE_DISTANCE = 7.0
 MAP_SIZE = {
     'Simple64': (88, 96),
     'ScoutSimple64': (88, 96),
+    'ScoutSimple64Dodge': (88, 96),
     'AbyssalReef': (200, 176),
     'ScoutAbyssalReef': (200, 176),
     'Acolyte': (168, 200),
