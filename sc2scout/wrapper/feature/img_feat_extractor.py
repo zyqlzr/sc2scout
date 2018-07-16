@@ -1,3 +1,5 @@
+from sc2scout.wrapper.feature.feature_extractor import FeatureExtractor
+import math
 
 class ImgFeatExtractor(FeatureExtractor):
     def __init__(self, compress_width, channel_num, reverse=False):
@@ -30,7 +32,13 @@ class ImgFeatExtractor(FeatureExtractor):
             else:
                 pos_y = self._y_radius + abs(pos_y - self._y_radius)
 
-        i = pos_x * self._x_per_unit
-        j = pos_y * self._y_per_unit
+        i = math.floor(pos_x / self._x_per_unit)
+        j = math.floor(pos_y / self._y_per_unit)
         return i, j
 
+    def pos_2_2d_local(self, pos_x, pos_y, cx, cy):
+        pos_x = (pos_x - cx) + self._x_radius
+        pos_y = (pos_y - cy) + self._y_radius
+        i = math.floor(pos_x / self._x_per_unit)
+        j = math.floor(pos_y / self._y_per_unit)
+        return i, j

@@ -1,10 +1,10 @@
 import gym
 import numpy as np
-from gym.spaces import Box
+from gym.spaces import Box, Tuple
 
 from sc2scout.wrapper.feature.scout_global_img_feature import ScoutGlobalImgFeature
 from sc2scout.wrapper.feature.scout_local_img_feature import ScoutLocalImgFeature
-
+from sc2scout.wrapper.feature.scout_vec_feature import ScoutVecFeature
 
 class ScoutEvadeObsWrapper(gym.ObservationWrapper):
     def __init__(self, env):
@@ -49,15 +49,16 @@ class ScoutEvadeObsWrapper(gym.ObservationWrapper):
 class ScoutEvadeBlendObsWrapper(gym.ObservationWrapper):
     def __init__(self, env):
         super(ScoutEvadeBlendObsWrapper, self).__init__(env)
-        self._init_obs_space()
         self._global = ScoutGlobalImgFeature(32, False)
         self._local = ScoutLocalImgFeature(32, 12, False)
-        self._vec = None
+        self._vec = ScoutVecFeature()
+        self._init_obs_space()
 
     def _reset(self):
         obs = self.env._reset()
-        self._local.reset(self.env)
         self._global.reset(self.env)
+        self._local.reset(self.env)
+        self._vec.reset(self.env)
 
         obs = self.observation(obs)
         return obs
@@ -68,11 +69,13 @@ class ScoutEvadeBlendObsWrapper(gym.ObservationWrapper):
         return obs, rwd, done, other
 
     def _init_obs_space(self):
-        low = np.zeros(5)
-        high = np.ones(5)
-        self.observation_space = Box(low, high)
+        self.observation_space = Tuple((self._global.obs_space(), 
+            self._local.obs_space(), self._vec.obs_space()))
+        print('observation space=', self.observation_space.shape)
 
     def _observation(self, obs):
-        self._local.extract(self.env, obs)
-        self._global.extract(self.env, obs)
-        return obs
+        global_feat = self._local.extract(self.env, obs)
+        local_feat = self._global.extract(self.env, obs)
+        vec_feat = self._vec.extract(self.env, obs)
+        return (global_feat, local_feat, vec_feat)
+

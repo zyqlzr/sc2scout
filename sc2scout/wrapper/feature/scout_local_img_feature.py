@@ -1,4 +1,5 @@
 import numpy as np
+from gym.spaces import Box
 
 from sc2scout.wrapper.feature.img_feat_extractor import ImgFeatExtractor
 import sc2scout.envs.scout_macro as sm
@@ -32,7 +33,9 @@ class ScoutLocalImgFeature(ImgFeatExtractor):
         return image
 
     def obs_space(self):
-        pass
+        low = np.zeros([self._local_width, self._local_width, self._channel_num])
+        high = np.ones([self._local_width, self._local_width, self._channel_num])
+        return Box(low, high)
 
     def check_in_range(self, pos_x, pos_y, env):
         scout = env.unwrapped.scout()

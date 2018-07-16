@@ -1,4 +1,5 @@
 import numpy as np
+from gym.spaces import Box
 
 from sc2scout.wrapper.feature.img_feat_extractor import ImgFeatExtractor
 import sc2scout.envs.scout_macro as sm
@@ -29,7 +30,9 @@ class ScoutGlobalImgFeature(ImgFeatExtractor):
         return image 
 
     def obs_space(self):
-        pass
+        low = np.zeros([self._compress_width, self._compress_width, self._channel_num])
+        high = np.ones([self._compress_width, self._compress_width, self._channel_num])
+        return Box(low, high)
 
     def home_pos_channel(self, env, image, channel_num):
         home = env.unwrapped.owner_base()
