@@ -2,7 +2,7 @@ from sc2scout.wrapper.explore_enemy.action_wrapper import ZergScoutActWrapper
 from sc2scout.wrapper.explore_enemy.zerg_scout_wrapper import ZergScoutWrapper
 from sc2scout.wrapper.evade_enemy.evade_rwd_wrapper import ScoutEvadeRwdWrapper
 from sc2scout.wrapper.evade_enemy.evade_terminal_wrapper import EvadeTerminalWrapper
-from sc2scout.wrapper.evade_enemy.evade_obs_wrapper import ScoutEvadeObsWrapper, ScoutEvadeBlendObsWrapper
+from sc2scout.wrapper.evade_enemy.evade_obs_wrapper import ScoutEvadeObsWrapper, ScoutEvadeImgObsWrapper
 from sc2scout.wrapper.wrapper_factory import WrapperMaker
 
 from baselines import deepq
@@ -32,10 +32,12 @@ class EvadeMakerV1(WrapperMaker):
         if env is None:
             raise Exception('input env is None')
         env = ZergScoutActWrapper(env)
-        env = ScoutEvadeBlendObsWrapper(env)
+        env = ScoutEvadeImgObsWrapper(env)
         env = ZergScoutWrapper(env)
         return env
 
     def model_wrapper(self):
-        return None
+        return deepq.models.cnn_to_mlp(
+            convs=[(32, 8, 4), (64, 4, 2), (64, 3, 1)], 
+            hiddens=[256, 128])
 

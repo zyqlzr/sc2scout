@@ -45,21 +45,18 @@ class ScoutEvadeObsWrapper(gym.ObservationWrapper):
                              1,
                              scout.float_attr.health / scout.float_attr.health_max])
 
-
-class ScoutEvadeBlendObsWrapper(gym.ObservationWrapper):
-    def __init__(self, env):
-        super(ScoutEvadeBlendObsWrapper, self).__init__(env)
-        self._global = ScoutGlobalImgFeature(32, False)
-        self._local = ScoutLocalImgFeature(32, 12, False)
-        self._vec = ScoutVecFeature()
+class ScoutEvadeImgObsWrapper(gym.ObservationWrapper):
+    def __init__(self, env, is_global=True):
+        super(ScoutEvadeImgObsWrapper, self).__init__(env)
+        if is_global:
+            self._obs = ScoutGlobalImgFeature(32, False)
+        else:
+            self._obs = ScoutLocalImgFeature(32, 12, False)
         self._init_obs_space()
 
     def _reset(self):
         obs = self.env._reset()
-        self._global.reset(self.env)
-        self._local.reset(self.env)
-        self._vec.reset(self.env)
-
+        self._obs.reset(self.env)
         obs = self.observation(obs)
         return obs
 
@@ -69,13 +66,9 @@ class ScoutEvadeBlendObsWrapper(gym.ObservationWrapper):
         return obs, rwd, done, other
 
     def _init_obs_space(self):
-        self.observation_space = Tuple((self._global.obs_space(), 
-            self._local.obs_space(), self._vec.obs_space()))
-        print('observation space=', self.observation_space.shape)
+        self.observation_space = self._obs.obs_space()
+        print('Evade img obs space=', self._obs.obs_space())
 
     def _observation(self, obs):
-        global_feat = self._local.extract(self.env, obs)
-        local_feat = self._global.extract(self.env, obs)
-        vec_feat = self._vec.extract(self.env, obs)
-        return (global_feat, local_feat, vec_feat)
+        return self._obs.extract(self.env, obs)
 

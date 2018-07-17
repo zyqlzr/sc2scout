@@ -1,4 +1,5 @@
 import logging
+import random
 
 import gym
 from pysc2.env import sc2_env
@@ -14,12 +15,14 @@ class SC2SelfplayGymEnv(gym.Env):
     metadata = {'render.modes': [None, 'human'],
                 'action.noop': 8}
 
-    def __init__(self, **kwargs) -> None:
+    def __init__(self, agents, **kwargs) -> None:
         super().__init__()
         self._kwargs = kwargs
         self._env = None
-
-        self._obs_oppo = None
+        if not isinstance(agents, list) and not isinstance(agents, tuple):
+            raise Exception('input agents is invalid')
+        self._agents = agents
+        self._curr_agent_index = 0
 
         self._episode = 0
         self._num_step = 0
@@ -30,66 +33,34 @@ class SC2SelfplayGymEnv(gym.Env):
         self._num_step += 1
 
         try:
-            action_oppo = self._step_oppo()
-
+            agent_action = self._agent_step()
+            print('action=', action[0], ';agent_action=', agent_action)
             actions = []
-
-            if action is not None:
-                actions += action
-
-            if action_oppo is not None:
-                actions += action_oppo
+            actions += action
+            actions += agent_action
+            print('actions= ', actions)
 
             timesteps = self._env.step(actions)
             obs = timesteps[0]
-            self._obs_oppo = timesteps[1]
+            self._agent_obs = timesteps[1]
         except KeyboardInterrupt:
             logger.info("Interrupted. Quitting...")
             return None, 0, True, {}
-        #except Exception:
-        #    logger.exception("exception while execute action")
-        #    return None, 0, True, {}
+
         reward = obs.reward
         self._episode_reward += reward
         self._total_reward += reward
         return obs, reward, obs.step_type == StepType.LAST, {}
 
-    def _step_oppo(self):
-        # obs: self._obs_oppo
-        # return [actions]
-
-        zergling = None
-        enemy = None
-
-        for u in self._obs_oppo.observation['units']:
-            if u.int_attr.unit_type == UNIT_TYPEID.ZERG_ZERGLING.value:
-                zergling = u
-            elif u.int_attr.unit_type == UNIT_TYPEID.ZERG_OVERLORD.value:
-                enemy = u
-
-        if zergling is None or enemy is None:
-            return None
-
-        #print([enemy.float_attr.pos_x, enemy.float_attr.pos_y])
-        return [[self._move_to_target(zergling, [enemy.float_attr.pos_x,
-                                            enemy.float_attr.pos_y])]]
-
-    def _move_to_target(self, u, pos):
-        action = sc_pb.Action()
-        action.action_raw.unit_command.ability_id = ABILITY_ID.SMART.value
-        action.action_raw.unit_command.target_world_space_pos.x = pos[0]
-        action.action_raw.unit_command.target_world_space_pos.y = pos[1]
-        action.action_raw.unit_command.unit_tags.append(u.tag)
-        return action
+    def _agent_step(self):
+        reward = self._agent_obs.reward
+        done = self._agent_obs.step_type == StepType.LAST
+        return [self._agents[self._curr_agent_index].act(self._agent_obs, reward, done)]
 
     def _reset(self):
         if self._env is None:
             self._init_env()
         if self._episode > 0:
-            #logger.info("---Episode %d ended with reward %d after %d steps.---",
-            #            self._episode, self._episode_reward, self._num_step)
-            #logger.info("---Got %d total reward so far, with an average reward of %g per episode---",
-            #            self._total_reward, float(self._total_reward) / self._episode)
             print("---Episode {} ended with reward {} after {} steps.---".format(
                         self._episode, self._episode_reward, self._num_step))
             print("---Got {} total reward so far, with an average reward of {} per episode---".format(
@@ -100,8 +71,14 @@ class SC2SelfplayGymEnv(gym.Env):
         logger.info("Episode %d starting...", self._episode)
         timesteps = self._env.reset()
         obs = timesteps[0]
-        self._obs_oppo = timesteps[1]
+        self._agent_obs = timesteps[1]
         return obs
+
+    def _select_agent(self):
+        if len(self._agents) == 1:
+            self._curr_agent_index = 0
+
+        self._curr_agent_index = random.randint(0, len(self._agents))
 
     def save_replay(self, replay_dir):
         self._env.save_replay(replay_dir)

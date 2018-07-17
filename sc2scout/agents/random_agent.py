@@ -1,7 +1,9 @@
 import gym
 from gym import wrappers, logger
 
-class RandomAgent(object):
+from sc2scout.agents.agent_base import AgentBase
+
+class RandomAgent(AgentBase):
     """The world's simplest agent!"""
     def __init__(self, action_space):
         self.action_space = action_space

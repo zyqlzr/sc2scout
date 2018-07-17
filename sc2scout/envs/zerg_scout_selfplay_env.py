@@ -16,8 +16,8 @@ MAP_SIZE = {
 }
 
 class ZergScoutSelfplayEnv(SC2SelfplayGymEnv):
-    def __init__(self, **kwargs):
-        super(ZergScoutSelfplayEnv, self).__init__(**kwargs)
+    def __init__(self, agents, **kwargs):
+        super(ZergScoutSelfplayEnv, self).__init__(agents, **kwargs)
         self._init_action_space()
         self._scout = None
         self._owner_base_pos = None
