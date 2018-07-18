@@ -34,11 +34,11 @@ class SC2SelfplayGymEnv(gym.Env):
 
         try:
             agent_action = self._agent_step()
-            print('action=', action[0], ';agent_action=', agent_action)
+            #print('action=', action[0], ';agent_action=', agent_action)
             actions = []
             actions += action
             actions += agent_action
-            print('actions= ', actions)
+            #print('actions= ', actions)
 
             timesteps = self._env.step(actions)
             obs = timesteps[0]
@@ -68,6 +68,7 @@ class SC2SelfplayGymEnv(gym.Env):
         self._episode += 1
         self._num_step = 0
         self._episode_reward = 0
+
         logger.info("Episode %d starting...", self._episode)
         timesteps = self._env.reset()
         obs = timesteps[0]

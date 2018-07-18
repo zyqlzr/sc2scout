@@ -100,6 +100,7 @@ class ScoutGlobalImgFeature(ImgFeatExtractor):
     def enemy_attr_channel(self, enemys, image, channel_base):
         for u in enemys:
             i, j = self.pos_2_2d(u.float_attr.pos_x, u.float_attr.pos_y)
+            #print('enemy coordinate={},{}'.format(i, j))
             if u.unit_type in sm.BASE_UNITS:
                 image[i, j, channel_base + 0] += 1
             elif u.unit_type in sm.BUILDING_UNITS:

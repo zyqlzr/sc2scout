@@ -1,5 +1,7 @@
 import gym
 from sc2scout.wrapper.reward import evade_reward as er
+from sc2scout.wrapper.reward import evade_img_reward as ir
+from sc2scout.wrapper.reward import scout_reward as sr
 
 class ScoutEvadeRwd(gym.Wrapper):
     def __init__(self, env):
@@ -14,6 +16,7 @@ class ScoutEvadeRwd(gym.Wrapper):
         obs = self.env._reset()
         for r in self._rewards:
             r.reset(obs, self.env.unwrapped)
+        return obs
 
     def _step(self, action):
         obs, rwd, done, other = self.env._step(action)
@@ -33,5 +36,14 @@ class ScoutEvadeRwdWrapper(ScoutEvadeRwd):
                          er.EvadeSpaceReward(weight=1),
                          er.EvadeHealthReward(weight=1)]
 
+class ScoutEvadeImgRwdWrapper(ScoutEvadeRwd):
+    def __init__(self, env):
+        super(ScoutEvadeImgRwdWrapper, self).__init__(env)
+
+    def _assemble_reward(self):
+        self._rewards = [ir.EvadeUnderAttackRwd(),
+                         ir.EvadeFinalRwd(),
+                         ir.EvadeInTargetRangeRwd(),
+                         sr.ViewEnemyReward(weight=20)]
 
 

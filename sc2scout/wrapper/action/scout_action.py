@@ -35,9 +35,10 @@ scout_action_dict = {0: 'upper',
 MOVE_RANGE = 1.0
 
 class ScoutAction(Action):
-    def __init__(self, env, pos_reverse):
+    def __init__(self, env, pos_reverse, move_range=MOVE_RANGE):
         super(ScoutAction, self).__init__(env)
         self._pos_reverse = pos_reverse
+        self._move_range = move_range
 
     def reset(self):
         pass
@@ -60,42 +61,42 @@ class ScoutAction(Action):
         scout = self.env.unwrapped.scout()
         if action == ScoutMove.UPPER.value:
             pos = (scout.float_attr.pos_x, 
-                   scout.float_attr.pos_y + MOVE_RANGE)
+                   scout.float_attr.pos_y + self._move_range)
             #print('action upper,scout:{} pos:{}'.format(
             #       (scout.float_attr.pos_x, scout.float_attr.pos_y), pos))
         elif action == ScoutMove.LEFT.value:
-            pos = (scout.float_attr.pos_x + MOVE_RANGE,
+            pos = (scout.float_attr.pos_x + self._move_range,
                    scout.float_attr.pos_y)
             #print('action left,scout:{} pos:{}'.format(
             #       (scout.float_attr.pos_x, scout.float_attr.pos_y), pos))
         elif action == ScoutMove.DOWN.value:
             pos = (scout.float_attr.pos_x,
-                   scout.float_attr.pos_y - MOVE_RANGE)
+                   scout.float_attr.pos_y - self._move_range)
             #print('action down,scout:{} pos:{}'.format(
             #       (scout.float_attr.pos_x, scout.float_attr.pos_y), pos))
         elif action == ScoutMove.RIGHT.value:
-            pos = (scout.float_attr.pos_x - MOVE_RANGE, 
+            pos = (scout.float_attr.pos_x - self._move_range,
                    scout.float_attr.pos_y)
             #print('action right,scout:{} pos:{}'.format(
             #       (scout.float_attr.pos_x, scout.float_attr.pos_y), pos))
         elif action == ScoutMove.UPPER_LEFT.value:
-            pos = (scout.float_attr.pos_x + MOVE_RANGE,
-                   scout.float_attr.pos_y + MOVE_RANGE)
+            pos = (scout.float_attr.pos_x + self._move_range,
+                   scout.float_attr.pos_y + self._move_range)
             #print('action upper_left,scout:{} pos:{}'.format(
             #       (scout.float_attr.pos_x, scout.float_attr.pos_y), pos))
         elif action == ScoutMove.LOWER_LEFT.value:
-            pos = (scout.float_attr.pos_x + MOVE_RANGE,
-                   scout.float_attr.pos_y - MOVE_RANGE)
+            pos = (scout.float_attr.pos_x + self._move_range,
+                   scout.float_attr.pos_y - self._move_range)
             #print('action lower_left,scout:{} pos:{}'.format(
             #       (scout.float_attr.pos_x, scout.float_attr.pos_y), pos))
         elif action == ScoutMove.LOWER_RIGHT.value:
-            pos = (scout.float_attr.pos_x - MOVE_RANGE,
-                   scout.float_attr.pos_y - MOVE_RANGE)
+            pos = (scout.float_attr.pos_x - self._move_range,
+                   scout.float_attr.pos_y - self._move_range)
             #print('action lower_right,scout:{} pos:{}'.format(
             #       (scout.float_attr.pos_x, scout.float_attr.pos_y), pos))
         elif action == ScoutMove.UPPER_RIGHT.value:
-            pos = (scout.float_attr.pos_x - MOVE_RANGE,
-                   scout.float_attr.pos_y + MOVE_RANGE)
+            pos = (scout.float_attr.pos_x - self._move_range,
+                   scout.float_attr.pos_y + self._move_range)
             #print('action upper_right,scout:{} pos:{}'.format(
             #       (scout.float_attr.pos_x, scout.float_attr.pos_y), pos))
         else:

@@ -11,5 +11,5 @@ class RandomAgent(AgentBase):
     def act(self, observation, reward, done):
         return self.action_space.sample()
 
-    def reset(self):
+    def reset(self, env):
         pass

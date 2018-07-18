@@ -1,7 +1,7 @@
-from sc2scout.wrapper.explore_enemy.action_wrapper import ZergScoutActWrapper
 from sc2scout.wrapper.explore_enemy.zerg_scout_wrapper import ZergScoutWrapper
-from sc2scout.wrapper.evade_enemy.evade_rwd_wrapper import ScoutEvadeRwdWrapper
-from sc2scout.wrapper.evade_enemy.evade_terminal_wrapper import EvadeTerminalWrapper
+from sc2scout.wrapper.evade_enemy.evade_act_wrapper import EvadeActWrapper
+from sc2scout.wrapper.evade_enemy.evade_rwd_wrapper import ScoutEvadeRwdWrapper, ScoutEvadeImgRwdWrapper
+from sc2scout.wrapper.evade_enemy.evade_terminal_wrapper import EvadeTerminalWrapper, EvadeImgTerminalWrapper
 from sc2scout.wrapper.evade_enemy.evade_obs_wrapper import ScoutEvadeObsWrapper, ScoutEvadeImgObsWrapper
 from sc2scout.wrapper.wrapper_factory import WrapperMaker
 
@@ -14,7 +14,7 @@ class EvadeMakerV0(WrapperMaker):
     def make_wrapper(self, env):
         if env is None:
             raise Exception('input env is None')
-        env = ZergScoutActWrapper(env)
+        env = EvadeActWrapper(env)
         env = EvadeTerminalWrapper(env)
         env = ScoutEvadeRwdWrapper(env)
         env = ScoutEvadeObsWrapper(env)
@@ -31,7 +31,9 @@ class EvadeMakerV1(WrapperMaker):
     def make_wrapper(self, env):
         if env is None:
             raise Exception('input env is None')
-        env = ZergScoutActWrapper(env)
+        env = EvadeActWrapper(env)
+        env = EvadeImgTerminalWrapper(env)
+        env = ScoutEvadeImgRwdWrapper(env)
         env = ScoutEvadeImgObsWrapper(env)
         env = ZergScoutWrapper(env)
         return env

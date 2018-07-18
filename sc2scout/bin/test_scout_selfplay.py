@@ -25,7 +25,7 @@ flags.DEFINE_string("agent_interface_format", "feature",
                     "Agent Interface Format: [feature|rgb]")
 
 flags.DEFINE_integer("max_agent_episodes", 1, "Total agent episodes.")
-flags.DEFINE_integer("max_step", 10000, "Game steps per episode.")
+flags.DEFINE_integer("max_step", 4000, "Game steps per episode.")
 flags.DEFINE_integer("step_mul", 8, "Game steps per agent step.")
 flags.DEFINE_integer("random_seed", None, "Random_seed used in game_core.")
 
@@ -125,7 +125,7 @@ def main(unused_argv):
 
     random_support = False
     total_rwd = 0.0
-    act_val = 5
+    act_val = 1
     try:
         obs = env.reset()
         n_step = 0
@@ -135,12 +135,21 @@ def main(unused_argv):
             #print('observation=', obs, 'observation_none=', obs[None])
             action = act_val#act(obs[None])[0]
             obs, rwd, done, other = env.step(action)
-            print('action=', action, '; rwd=', rwd)
+            print('action=', action, '; rwd=', rwd, '; step=', n_step)
             total_rwd += rwd
             if other:
                 act_val = 7
             if random_support:
                 act_val = random.randint(0, 8)
+
+            if n_step == 50:
+                act_val = 3
+            '''
+            if n_step == 20:
+                act_val = 0
+            elif n_step == 94:
+                act_val = 1
+            '''
             #print('step rwd=', rwd, ',action=', action, "obs=", obs)
             if done:
                 print("game over, total_rwd=", total_rwd)
