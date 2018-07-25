@@ -47,10 +47,12 @@ flags.DEFINE_bool("disable_fog", False, "Turn off the Fog of War.")
 flags.DEFINE_integer("max_episode_rwd", None, 'the max sum reward of episode')
 flags.DEFINE_bool("save_replay", True, "Whether to save a replay at the end.")
 
-flags.DEFINE_float('param_lr', 1e-4, 'learning rate')
-flags.DEFINE_integer('param_bf', 50000, 'buffer size')
-flags.DEFINE_float('param_ef', 0.1, 'explore_fraction')
-flags.DEFINE_float('param_efps', 0.02, 'exploration_final_eps')
+flags.DEFINE_integer('param_concurrent', 2, 'the concurrent')
+flags.DEFINE_float('param_lam', 0.95, 'the parameter lan')
+flags.DEFINE_float('param_gamma', 0.99, 'the parameter gamma')
+flags.DEFINE_float('param_lr', 2.5e-4, 'the parameter learning rate')
+flags.DEFINE_float('param_cr', 0.1, 'the parameter cliprange')
+flags.DEFINE_integer('param_tstep', 100000, 'the parameter totoal step')
 
 flags.DEFINE_string("map", 'ScoutSimple64Dodge2', "Name of a map to use.")
 flags.mark_flag_as_required("map")
@@ -59,29 +61,6 @@ flags.mark_flag_as_required("wrapper")
 mean_rwd_gap = 5
 last_done_step = 0
 
-def callback(lcl, _glb):
-    # stop training if reward exceeds 199
-    step = lcl['t']
-    reset_flag = lcl['reset']
-
-    if reset_flag:
-        global last_done_step
-        mr = lcl['mean_100ep_reward']
-        rwds = lcl['episode_rewards'][-2:-1]
-        logger.log('last_done_step={} step={} last_episode_rwd={}, mean_100ep_rwd={}'.format(
-                last_done_step, step, rwds, mr))
-        last_done_step = step
-        if FLAGS.max_episode_rwd is None or len(rwds) == 0:
-            return False
-
-        if mr <= (FLAGS.max_episode_rwd - mean_rwd_gap):
-            return False
-
-        if rwds[0] >= FLAGS.max_episode_rwd:
-            logger.log('episode reward get the max_reward, stop and save model, {} {}'.format(
-                    FLAGS.max_episode_rwd, rwds[0]))
-            return True
-    return False
 
 def make_sc2_dis_env(num_env, seed,players,agent_interface_format,start_index=0):
     """
@@ -141,17 +120,24 @@ def main(unused_argv):
     config.gpu_options.allow_growth = True  # pylint: disable=E1101
     tf.Session(config=config).__enter__()
 
-    env = make_sc2_dis_env(num_env=2, seed=rs, players=players, agent_interface_format=agent_interface_format)
+    #flags.DEFINE_float('param_tstep', 100000, 'the parameter totoal step')
+    param_lam = FLAGS.param_lam
+    param_gamma = FLAGS.param_gamma
+    param_concurrent = FLAGS.param_concurrent
+    param_lr = FLAGS.param_lr
+    param_cr = FLAGS.param_cr
+    param_tstep = FLAGS.param_tstep
+    print('params, lam={} gamma={} concurrent={} lr={} tstep={}'.format(
+        param_lam, param_gamma, param_concurrent, param_lr, param_tstep))
 
-    print('params, lr={} bf={} ef={} ef_eps={}'.format(
-        FLAGS.param_lr, FLAGS.param_bf, FLAGS.param_ef, FLAGS.param_efps))
+    env = make_sc2_dis_env(num_env=param_concurrent, seed=rs, players=players, agent_interface_format=agent_interface_format)
 
     ppo2.learn(policy=CnnPolicy, env=env, nsteps=128, nminibatches=1,
-               lam=0.95, gamma=0.99, noptepochs=4, log_interval=1,
+               lam=param_lam, gamma=param_gamma, noptepochs=4, log_interval=1,
                ent_coef=0.01,
-               lr=lambda f: f * 2.5e-4,
-               cliprange=lambda f: f * 0.1,
-               total_timesteps=100000,
+               lr=lambda f: f * param_lr,
+               cliprange=lambda f: f * param_cr,
+               total_timesteps=param_tstep,
                save_interval=10)
 
 def entry_point():  # Needed so setup.py scripts work.
