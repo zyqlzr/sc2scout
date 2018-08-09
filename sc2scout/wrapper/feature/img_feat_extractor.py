@@ -2,10 +2,9 @@ from sc2scout.wrapper.feature.feature_extractor import FeatureExtractor
 import math
 
 class ImgFeatExtractor(FeatureExtractor):
-    def __init__(self, compress_width, channel_num, reverse=False):
+    def __init__(self, compress_width, reverse=False):
         self.env = None
         self._compress_width = compress_width
-        self._channel_num = channel_num
         self._reverse = reverse
         self._map_size = None
         self._x_radius = None

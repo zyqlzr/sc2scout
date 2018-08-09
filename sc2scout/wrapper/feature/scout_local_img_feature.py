@@ -8,8 +8,9 @@ LOCAL_CHANNEL = 20
 
 class ScoutLocalImgFeature(ImgFeatExtractor):
     def __init__(self, compress_width, local_width, reverse):
-        super(ScoutLocalImgFeature, self).__init__(compress_width, LOCAL_CHANNEL, reverse)
+        super(ScoutLocalImgFeature, self).__init__(compress_width, reverse)
         self._local_width = local_width
+        self._channel_num = LOCAL_CHANNEL
 
     def reset(self, env):
         super(ScoutLocalImgFeature, self).reset(env)

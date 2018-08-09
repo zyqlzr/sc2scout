@@ -43,7 +43,7 @@ class ScoutEvadeImgRwdWrapper(ScoutEvadeRwd):
     def _assemble_reward(self):
         self._rewards = [ir.EvadeUnderAttackRwd(),
                          ir.EvadeFinalRwd(),
-                         ir.EvadeInTargetRangeRwd(),
+                         ir.EvadeInTargetRangeRwd(32, 12),
                          sr.ViewEnemyReward(weight=20)]
 
 

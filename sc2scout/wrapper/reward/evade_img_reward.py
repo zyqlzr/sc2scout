@@ -2,6 +2,7 @@ import math
 
 from sc2scout.wrapper.reward.reward import Reward
 from sc2scout.envs import scout_macro as sm
+from sc2scout.wrapper.util.map_scan import MapScan, TargetMapScan
 
 class EvadeUnderAttackRwd(Reward):
     def __init__(self, weight=1):
@@ -48,17 +49,16 @@ class EvadeFinalRwd(Reward):
                 self.rwd = 1 * self.w
             else:
                 self.rwd = -1 * self.w
+            #print('final_rwd=', self.rwd)
         else:
             self.rwd = 0
-        #print('final_rwd=', self.rwd)
 
 class EvadeInTargetRangeRwd(Reward):
-    def __init__(self, weight=1):
+    def __init__(self, compress_width, range_width, weight=1):
         super(EvadeInTargetRangeRwd, self).__init__(weight)
-        self._range = 30
         self._target = None
-        self._compress_width = 32
-        self._range_width = 12
+        self._compress_width = compress_width
+        self._range_width = range_width
  
     def reset(self, obs, env):
         target = env.unwrapped.enemy_base()
@@ -98,4 +98,23 @@ class EvadeInTargetRangeRwd(Reward):
         else:
             return True
 
+class EvadeTargetScanRwd(Reward):
+    def __init__(self, compress_width, range_width, weight=1):
+        super(EvadeTargetScanRwd, self).__init__(weight)
+        self._compress_width = compress_width
+        self._range_width = range_width
+        self._target_ms = None
+
+    def reset(self, obs, env):
+        center = env.unwrapped.enemy_base()
+        self._target_ms = TargetMapScan(self._compress_width, center, self._range_width)
+        self._target_ms.reset(env)
+
+    def compute_rwd(self, obs, reward, done, env):
+        scout = env.unwrapped.scout()
+        ret = self._target_ms.scan_pos(scout.float_attr.pos_x, scout.float_attr.pos_y)
+        if ret:
+            self.rwd = 1 * self.w
+        else:
+            self.rwd = 0
 

@@ -13,7 +13,8 @@ MAP_SIZE = {
     'ScoutAbyssalReef': (200, 176),
     'Acolyte': (168, 200),
     'ScoutSimple64Dodge': (88, 96),
-    'ScoutSimple64Dodge2': (88, 96)
+    'ScoutSimple64Dodge2': (88, 96),
+    'ScoutSimple64Dodge3': (88, 96)
 }
 
 class ZergScoutSelfplayEnv(SC2SelfplayGymEnv):

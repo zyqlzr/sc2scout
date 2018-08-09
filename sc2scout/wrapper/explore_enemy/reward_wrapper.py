@@ -14,6 +14,7 @@ class ScoutOnewayRwd(gym.Wrapper):
         obs = self.env._reset()
         for r in self._rewards:
             r.reset(obs, self.env.unwrapped)
+        return obs
 
     def _step(self, action):
         obs, rwd, done, other = self.env._step(action)
@@ -42,6 +43,7 @@ class ScoutRoundTripRwd(gym.Wrapper):
             br.reset(obs, self.env.unwrapped)
         for r in self._final_rewards:
             r.reset(obs, self.env.unwrapped)
+        return obs
 
     def _step(self, action):
         obs, rwd, done, other = self.env._step(action)
