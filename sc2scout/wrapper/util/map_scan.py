@@ -29,13 +29,16 @@ class TargetMapScan(ImgFeatExtractor):
         super(TargetMapScan, self).reset(env)
         self._c_i, self._c_j = self.pos_2_2d(self._center[0], self._center[1])
 
-        radius = (self._x_per_unit * self._range) / 2
-        min_pos = (self._center[0] - radius, self._center[1] - radius)
-        max_pos = (self._center[0] + radius, self._center[1] + radius)
+        radius_x = (self._x_per_unit * self._range) / 2
+        radius_y = (self._y_per_unit * self._range) / 2
+        min_pos = (self._center[0] - radius_x, self._center[1] - radius_y)
+        max_pos = (self._center[0] + radius_x, self._center[1] + radius_y)
         self._min_i, self._min_j = self.pos_2_2d(min_pos[0], min_pos[1])
         self._max_i, self._max_j = self.pos_2_2d(max_pos[0], max_pos[1])
-        #print("TargetMapScan radius={},min=({},{}),max=({},{})".format(
-        #      radius, self._min_i, self._min_j, self._max_i, self._max_j))
+        print("TargetMapScan radius=({},{}),min=({},{}),max=({},{})".format(
+              radius_x, radius_y, self._min_i, self._min_j, self._max_i, self._max_j))
+        print("TargetMapScan range_compare max-min=({},{}), range=({},{})".format(
+              self._max_i - self._min_i, self._max_j - self._min_j, self._range, self._range))
 
     def scan_pos(self, pos_x, pos_y):
         i, j = self.pos_2_2d(pos_x, pos_y)
