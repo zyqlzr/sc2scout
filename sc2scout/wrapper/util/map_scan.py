@@ -42,9 +42,9 @@ class TargetMapScan(ImgFeatExtractor):
 
     def scan_pos(self, pos_x, pos_y):
         i, j = self.pos_2_2d(pos_x, pos_y)
-        if i < self._min_i or i > self._max_i:
+        if i < self._min_i or i >= self._max_i:
             return False
-        if j < self._min_j or j > self._max_j:
+        if j < self._min_j or j >= self._max_j:
             return False
 
         target_i = i - self._min_i
