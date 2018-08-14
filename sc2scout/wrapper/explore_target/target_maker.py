@@ -15,9 +15,9 @@ class TargetMakerV1(WrapperMaker):
         if env is None:
             raise Exception('input env is None')
         env = EvadeActWrapper(env)
-        env = TargetTerminalWrapper(env, 128, 48, 100)
-        env = ExploreTargetRwdWrapper(env, 128, 48, 100)
-        env = TargetObsWrapper(env, 128, 48, 100)
+        env = TargetTerminalWrapper(env, 128, 48, 200)
+        env = ExploreTargetRwdWrapper(env, 128, 48, 200)
+        env = TargetObsWrapper(env, 128, 48, 200)
         env = ZergScoutWrapper(env)
         return env
 

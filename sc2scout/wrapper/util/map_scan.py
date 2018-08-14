@@ -21,7 +21,7 @@ class TargetMapScan(ImgFeatExtractor):
     def __init__(self, compress_width, center, target_range):
         super(TargetMapScan, self).__init__(compress_width)
         self._center = center
-        self._range = math.floor(target_range / 2)
+        self._range = target_range
         self._shape = (self._range, self._range)
         self._map = np.zeros(self._shape, dtype=np.int8)
 

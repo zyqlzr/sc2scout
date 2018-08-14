@@ -99,31 +99,30 @@ class ScoutGlobalImgFeatureV1(ImgFeatExtractor):
         return channel_base + 1
 
     def scout_status_channel(self, env, image, channel_base):
-        scout = env.unwrapped.scout()
-        i, j = self.pos_2_2d(scout.float_attr.pos_x, scout.float_attr.pos_y)
-        self._status.check_status((scout.float_attr.pos_x, scout.float_attr.pos_y))
+        ones  = np.ones([self._compress_width, self._compress_width])
+        zeros  = np.zeros([self._compress_width, self._compress_width])
         if self._status.status() == TripStatus.FORWARD:
-            image[i, j, channel_base + 0] = 1
-            image[i, j, channel_base + 1] = 0
-            image[i, j, channel_base + 2] = 0
+            image[:, :, channel_base + 0] = ones
+            image[:, :, channel_base + 1] = zeros
+            image[:, :, channel_base + 2] = zeros
             #print('forward feature, pos=({},{}), channel_base={},channel_list={}'.format(
             #      i, j, channel_base, image[i, j, :]))
         elif self._status.status() == TripStatus.EXPLORE:
-            image[i, j, channel_base + 0] = 0 
-            image[i, j, channel_base + 1] = 1
-            image[i, j, channel_base + 2] = 0
+            image[:, :, channel_base + 0] = zeros 
+            image[:, :, channel_base + 1] = ones
+            image[:, :, channel_base + 2] = zeros
             #print('explore feature, pos=({},{}), channel_base={},channel_list={}'.format(
             #      i, j, channel_base, image[i, j, :]))
         elif self._status.status() == TripStatus.BACKWORD:
-            image[i, j, channel_base + 0] = 0 
-            image[i, j, channel_base + 1] = 0
-            image[i, j, channel_base + 2] = 1
+            image[:, :, channel_base + 0] = zeros
+            image[:, :, channel_base + 1] = zeros
+            image[:, :, channel_base + 2] = ones
             #print('backward feature, pos=({},{}), channel_base={},channel_list={}'.format(
             #      i, j, channel_base, image[i, j, :]))
         else:
-            image[i, j, channel_base + 0] = 0
-            image[i, j, channel_base + 1] = 0
-            image[i, j, channel_base + 2] = 0
+            image[:, :, channel_base + 0] = zeros
+            image[:, :, channel_base + 1] = zeros
+            image[:, :, channel_base + 2] = zeros
             #print('terminal feature, pos=({},{}), channel_base={},channel_list={}'.format(
             #      i, j, channel_base, image[i, j, :]))
         return channel_base + 3

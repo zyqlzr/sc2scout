@@ -1,5 +1,6 @@
 import gym
 from sc2scout.wrapper.util.trip_status import TripStatus, TripCourse
+from sc2scout.wrapper.util.dest_range import DestRange
 
 class TargetTerminalWrapper(gym.Wrapper):
     def __init__(self, env, compress_width, range_width, explore_step):
@@ -21,6 +22,7 @@ class TargetTerminalWrapper(gym.Wrapper):
         self._status = TripCourse(home_pos, enemy_pos, 
                                   (x_range, y_range), self._explore_step)
         self._status.reset()
+        self._home_base = DestRange(self.env.unwrapped.owner_base())
         return obs
 
     def _step(self, action):
@@ -39,6 +41,10 @@ class TargetTerminalWrapper(gym.Wrapper):
         status = self._status.check_status((scout.float_attr.pos_x, scout.float_attr.pos_y))
         if status == TripStatus.TERMINAL:
             return True
+        elif status == TripStatus.BACKWORD:
+            if self._home_base.in_range((scout.float_attr.pos_x, scout.float_attr.pos_y)):
+                print("backward return_HOME,", status)
+                return True
         return done
 
 
