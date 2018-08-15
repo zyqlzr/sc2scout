@@ -99,34 +99,32 @@ class ScoutGlobalImgFeatureV1(ImgFeatExtractor):
         return channel_base + 1
 
     def scout_status_channel(self, env, image, channel_base):
+        scout = env.unwrapped.scout()
+        self._status.check_status((scout.float_attr.pos_x, scout.float_attr.pos_y))
         ones  = np.ones([self._compress_width, self._compress_width])
         zeros  = np.zeros([self._compress_width, self._compress_width])
         if self._status.status() == TripStatus.FORWARD:
             image[:, :, channel_base + 0] = ones
             image[:, :, channel_base + 1] = zeros
             image[:, :, channel_base + 2] = zeros
-            #print('forward feature, pos=({},{}), channel_base={},channel_list={}'.format(
-            #      i, j, channel_base, image[i, j, :]))
+            #print('forward feature')
         elif self._status.status() == TripStatus.EXPLORE:
             image[:, :, channel_base + 0] = zeros 
             image[:, :, channel_base + 1] = ones
             image[:, :, channel_base + 2] = zeros
-            #print('explore feature, pos=({},{}), channel_base={},channel_list={}'.format(
-            #      i, j, channel_base, image[i, j, :]))
+            #print('explore feature')
         elif self._status.status() == TripStatus.BACKWORD:
             image[:, :, channel_base + 0] = zeros
             image[:, :, channel_base + 1] = zeros
             image[:, :, channel_base + 2] = ones
-            #print('backward feature, pos=({},{}), channel_base={},channel_list={}'.format(
-            #      i, j, channel_base, image[i, j, :]))
+            #print('backward feature')
         else:
             image[:, :, channel_base + 0] = zeros
             image[:, :, channel_base + 1] = zeros
             image[:, :, channel_base + 2] = zeros
-            #print('terminal feature, pos=({},{}), channel_base={},channel_list={}'.format(
-            #      i, j, channel_base, image[i, j, :]))
+            #print('terminal feature')
         return channel_base + 3
-
+ 
     def nertral_attr_channel(self, neutrals, image, channel_base):
         nertral_count = 0
         resource_count = 0
