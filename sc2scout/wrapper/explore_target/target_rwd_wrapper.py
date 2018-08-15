@@ -103,7 +103,8 @@ class ExploreTargetRwdWrapper(TargetTripRwd):
                                   ir.EvadeUnderAttackRwd()]
         self._explore_rewards = [ir.EvadeUnderAttackRwd(),
                                  ir.EvadeInTargetRangeRwd(self._compress_width, self._range_width),
-                                 sr.ViewEnemyReward(weight=20),
-                                 ir.EvadeTargetScanRwd(self._compress_width, self._range_width)]
+                                 sr.ViewEnemyReward(weight=20)
+                                 #ir.EvadeTargetScanRwd(self._compress_width, self._range_width),
+                                 ]
         self._final_rewards = [ir.EvadeFinalRwd()]
 
