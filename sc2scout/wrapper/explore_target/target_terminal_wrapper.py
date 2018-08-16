@@ -47,4 +47,24 @@ class TargetTerminalWrapper(gym.Wrapper):
                 return True
         return done
 
+class TargetTerminalWrapperV1(gym.Wrapper):
+    def __init__(self, env, compress_width, range_width, explore_step):
+        super(TargetTerminalWrapperV1, self).__init__(env)
+
+    def _reset(self):
+        return self.env._reset()
+
+    def _step(self, action):
+        obs, rwd, done, info = self.env._step(action)
+        return obs, rwd, self._check_terminal(obs, done), info
+
+    def _check_terminal(self, obs, done):
+        if done:
+            return done
+
+        survive = self.env.unwrapped.scout_survive()
+        if not survive:
+            return True
+       
+        return done
 
