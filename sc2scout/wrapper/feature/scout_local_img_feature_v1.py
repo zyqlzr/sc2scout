@@ -4,7 +4,7 @@ from gym.spaces import Box
 from sc2scout.wrapper.feature.img_feat_extractor import ImgFeatExtractor
 import sc2scout.envs.scout_macro as sm
 
-LOCAL_CHANNEL = 20
+LOCAL_CHANNEL = 14
 
 class ScoutLocalImgFeatureV1(ImgFeatExtractor):
     def __init__(self, compress_width, local_width, reverse):
@@ -27,10 +27,10 @@ class ScoutLocalImgFeatureV1(ImgFeatExtractor):
         image = np.zeros([self._local_width, self._local_width, self._channel_num])
         channel_base = self.home_pos_channel(env, image, 0)
         channel_base = self.target_pos_channel(env, image, channel_base)
-        channel_base = self.scout_attr_channel(env, image, channel_base)
         channel_base = self.nertral_attr_channel(neutrals, image, channel_base, env)
         channel_base = self.owner_attr_channel(owners, image, channel_base, env)
         channel_base = self.enemy_attr_channel(enemys, image, channel_base, env)
+        #print("ScoutLocalImgFeatureV1 channel_base=", channel_base)
         return image
 
     def obs_space(self):
@@ -38,12 +38,16 @@ class ScoutLocalImgFeatureV1(ImgFeatExtractor):
         high = np.ones([self._local_width, self._local_width, self._channel_num])
         return Box(low, high)
 
-    def check_in_range(self, pos_x, pos_y, env):
+    def check_in_range(self, pos_x, pos_y, env, log=False):
         scout = env.unwrapped.scout()
         x_low = scout.float_attr.pos_x - self._x_radius
         x_high = scout.float_attr.pos_x + self._x_radius
         y_low = scout.float_attr.pos_y - self._y_radius
         y_high = scout.float_attr.pos_y + self._y_radius
+        if log:
+            print("pos=({},{}), scout=({},{}), x_range=({}-{}),y_range=({},{})".format(
+                  pos_x, pos_y, scout.float_attr.pos_x, scout.float_attr.pos_y,
+                  x_low, x_high, y_low, y_high))
         if pos_x > x_high or pos_x < x_low:
             return False
         if pos_y > y_high or pos_y < y_low:
@@ -63,7 +67,7 @@ class ScoutLocalImgFeatureV1(ImgFeatExtractor):
 
         cx, cy = self.center_pos(env)
         i, j = self.pos_2_2d_local(home[0], home[1], cx, cy)
-        print("home coordinate({}, {}), home={}".format(i, j))
+        #print("home coordinate({}, {}), home={}".format(i, j, home))
         image[i, j, channel_num] += 1
         return channel_num + 1
 
@@ -74,8 +78,8 @@ class ScoutLocalImgFeatureV1(ImgFeatExtractor):
 
         cx, cy = self.center_pos(env)
         i, j = self.pos_2_2d_local(target[0], target[1], cx, cy)
-        print("target coordinate({}, {}), target={}, c=({}, {})".format(i, j, 
-            target, cx, cy))
+        #print("target coordinate({}, {}), target={}, c=({}, {})".format(i, j, 
+        #    target, cx, cy))
         image[i, j, channel_num] += 1
         return channel_num + 1
 
@@ -130,8 +134,8 @@ class ScoutLocalImgFeatureV1(ImgFeatExtractor):
         cx, cy = self.center_pos(env)
         for u in enemys:
             i, j = self.pos_2_2d_local(u.float_attr.pos_x, u.float_attr.pos_y, cx, cy)
-            print("enemy coordinate({}, {}), pos=({},{}), c=({},{})".format(i, j, 
-                u.float_attr.pos_x, u.float_attr.pos_y, cx, cy))
+            #print("enemy coordinate({}, {}), pos=({},{}), c=({},{})".format(i, j, 
+            #    u.float_attr.pos_x, u.float_attr.pos_y, cx, cy))
             if u.unit_type in sm.BASE_UNITS:
                 image[i, j, channel_base + 0] += 1
             elif u.unit_type in sm.BUILDING_UNITS:
@@ -162,8 +166,8 @@ class ScoutLocalImgFeatureV1(ImgFeatExtractor):
             else:
                 continue
 
-        print('owners={},neutrals={}, enemys={}'.format(
-            len(owners), len(neutrals), len(enemys)))
+        #print('owners={},neutrals={}, enemys={}'.format(
+        #    len(owners), len(neutrals), len(enemys)))
         return owners, neutrals, enemys
 
 

@@ -14,7 +14,8 @@ class ScoutGlobalImgFeature(ImgFeatExtractor):
     def reset(self, env):
         super(ScoutGlobalImgFeature, self).reset(env)
         print('ScoutGlobalImgFeature reset')
-        print('radius=({},{}), per_unit=({},{})'.format(self._x_radius, self._y_radius, self._x_per_unit, self._y_per_unit))
+        print('radius=({},{}), per_unit=({},{})'.format(self._x_radius, self._y_radius, 
+                                                        self._x_per_unit, self._y_per_unit))
 
     def extract(self, env, obs):
         owners, neutrals, enemys = self.unit_dispatch(obs)

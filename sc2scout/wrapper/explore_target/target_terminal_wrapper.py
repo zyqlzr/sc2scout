@@ -48,7 +48,7 @@ class TargetTerminalWrapper(gym.Wrapper):
         return done
 
 class TargetTerminalWrapperV1(gym.Wrapper):
-    def __init__(self, env, compress_width, range_width, explore_step):
+    def __init__(self, env):
         super(TargetTerminalWrapperV1, self).__init__(env)
 
     def _reset(self):

@@ -1,52 +1,25 @@
 from gym.spaces import Box
-from sc2scout.envs import scout_macro as sm
+
 import numpy as np
 
 from sc2scout.wrapper.feature.feature_extractor import FeatureExtractor
-from sc2scout.wrapper.feature.img_feat_extractor import ImgFeatExtractor
 from sc2scout.wrapper.util.dest_range import DestRange
-from sc2scout.wrapper.util.trip_status import TripStatus, TripCourse
+import sc2scout.envs.scout_macro as sm
 
 SCOUT_IN_RANGE = 1
 SCOUT_OUT_RANGE = 0
 
-class ScoutSimpleFeature(FeatureExtractor):
+class VecFeature(FeatureExtractor):
     def __init__(self):
         self._reverse = False
         self._map_size = None
-        self._env = None
 
     def reset(self, env):
-        self.env = env
-        self._map_size = self.env.unwrapped.map_size()
+        self._map_size = env.unwrapped.map_size()
         self._reverse = self._judge_reverse(env)
 
-    def obs_space(self):
-        low = np.zeros(6)
-        high = np.ones(6)
-        return Box(low, high)
-
-    def extract(self, env, obs):
-        scout = env.unwrapped.scout()
-        scout_raw_pos = (scout.float_attr.pos_x, scout.float_attr.pos_y)
-        home_pos = env.unwrapped.owner_base()
-        enemy_pos = env.unwrapped.enemy_base()
-        scout_pos = self._pos_transfer(scout_raw_pos[0], scout_raw_pos[1])
-        home_pos = self._pos_transfer(home_pos[0], home_pos[1])
-        enemy_pos = self._pos_transfer(enemy_pos[0], enemy_pos[1])
-
-        features = []
-        features.append(float(scout_pos[0]) / self._map_size[0])
-        features.append(float(scout_pos[1]) / self._map_size[1])
-        features.append(float(abs(home_pos[0] - scout_pos[0])) / self._map_size[0])
-        features.append(float(abs(home_pos[1] - scout_pos[1])) / self._map_size[1])
-        features.append(float(abs(enemy_pos[0] - scout_pos[0])) / self._map_size[0])
-        features.append(float(abs(enemy_pos[1] - scout_pos[1])) / self._map_size[1])
-
-        return features
-
     def _judge_reverse(self, env):
-        scout = self.env.unwrapped.scout()
+        scout = env.unwrapped.scout()
         if scout.float_attr.pos_x < scout.float_attr.pos_y:
             return False
         else:
@@ -71,21 +44,46 @@ class ScoutSimpleFeature(FeatureExtractor):
 
         return (pos_x, pos_y)
 
-class ScoutVecFeature(FeatureExtractor):
+class ScoutSimpleFeature(VecFeature):
+    def __init__(self):
+        super(ScoutSimpleFeature, self).__init__()
+
+    def reset(self, env):
+        super(ScoutSimpleFeature, self).reset(env)
+
+    def obs_space(self):
+        low = np.zeros(6)
+        high = np.ones(6)
+        return Box(low, high)
+
+    def extract(self, env, obs):
+        scout = env.unwrapped.scout()
+        scout_raw_pos = (scout.float_attr.pos_x, scout.float_attr.pos_y)
+        home_pos = env.unwrapped.owner_base()
+        enemy_pos = env.unwrapped.enemy_base()
+        scout_pos = self._pos_transfer(scout_raw_pos[0], scout_raw_pos[1])
+        home_pos = self._pos_transfer(home_pos[0], home_pos[1])
+        enemy_pos = self._pos_transfer(enemy_pos[0], enemy_pos[1])
+
+        features = []
+        features.append(float(scout_pos[0]) / self._map_size[0])
+        features.append(float(scout_pos[1]) / self._map_size[1])
+        features.append(float(abs(home_pos[0] - scout_pos[0])) / self._map_size[0])
+        features.append(float(abs(home_pos[1] - scout_pos[1])) / self._map_size[1])
+        features.append(float(abs(enemy_pos[0] - scout_pos[0])) / self._map_size[0])
+        features.append(float(abs(enemy_pos[1] - scout_pos[1])) / self._map_size[1])
+        return features
+
+class ScoutVecFeature(VecFeature):
     def __init__(self):
         super(ScoutVecFeature, self).__init__()
         self._dest = None
         self._src = None
-        self._reverse = False
-        self._map_size = None
-        self.env = None
 
     def reset(self, env):
-        self.env = env
+        super(ScoutVecFeature, self).reset(env)
         self._dest = DestRange(env.unwrapped.enemy_base())
         self._src = DestRange(env.unwrapped.owner_base())
-        self._map_size = self.env.unwrapped.map_size()
-        self._reverse = self._judge_reverse(env)
 
     def obs_space(self):
         low = np.zeros(8)
@@ -125,104 +123,55 @@ class ScoutVecFeature(FeatureExtractor):
 
         return features
 
-    def _judge_reverse(self, env):
-        scout = self.env.unwrapped.scout()
-        if scout.float_attr.pos_x < scout.float_attr.pos_y:
-            return False
-        else:
-            return True
-
-    def _pos_transfer(self, x, y):
-        if not self._reverse:
-            return (x, y)
-        cx = self._map_size[0] / 2
-        cy = self._map_size[1] / 2
-        pos_x = 0.0
-        pos_y = 0.0
-        if x > cx:
-            pos_x = cx - abs(x - cx)
-        else:
-            pos_x = cx + abs(x - cx)
-
-        if y > cy:
-            pos_y = cy - abs(y - cy)
-        else:
-            pos_y = cy + abs(y - cy)
-
-        return (pos_x, pos_y)
-
-
-NUM_OF_ENEMIES = 1
-NUM_OF_ACTIONS = 8
-NUM_OF_FEATURES = 6
-
-class ScoutStaticsticVec(ImgFeatExtractor):
-    def __init__(self, compress_width, range_width, explore_step, reverse):
-        super(ScoutStaticsticVec, self).__init__(compress_width, reverse)
-        self._range_width = range_width
-        self._explore_step = explore_step
-        self.env = None
-        self._status = None
+class ScoutVecFeatureV1(VecFeature):
+    def __init__(self):
+        super(ScoutVecFeatureV1, self).__init__()
+        self._dest = None
+        self._src = None
 
     def reset(self, env):
-        super(ScoutStaticsticVec, self).reset(env)
-        self._init_status(env)
-        print("ScoutStaticsticVec obs reset")
-
-    def _init_status(self, env):
-        home_pos = env.unwrapped.owner_base()
-        enemy_pos = env.unwrapped.enemy_base()
-        x_range = self._x_per_unit * self._range_width
-        y_range = self._y_per_unit * self._range_width
-        self._status = TripCourse(home_pos, enemy_pos,
-                                  (x_range, y_range), self._explore_step)
-        self._status.reset()
+        super(ScoutVecFeatureV1, self).reset(env)
+        self._dest = DestRange(env.unwrapped.enemy_base())
+        self._src = DestRange(env.unwrapped.owner_base())
 
     def obs_space(self):
-        low = np.zeros(NUM_OF_FEATURES)
-        high = np.ones(NUM_OF_FEATURES)
+        low = np.zeros(4)
+        high = np.ones(4)
         return Box(low, high)
 
-    def extract(self, env, obs, action):
+    def extract(self, env, obs):
         scout = env.unwrapped.scout()
-        curr_status = self._status.check_status((scout.float_attr.pos_x, scout.float_attr.pos_y))
-        curr_enemy_count = self._count_enemies(obs)
 
         features = []
-        features.append(float(action)/NUM_OF_ACTIONS)# action feature after normilization
-        features.append(scout.float_attr.health/scout.float_attr.health_max)# health feature after normilization
-        features.append(float(curr_enemy_count)/NUM_OF_ENEMIES)# enemy_number feature after normilization
-        if curr_status == TripStatus.FORWARD:
-            print("TripStatus.FORWARD")
-            features.append(1)
-            features.append(0)
-            features.append(0)
-        elif curr_status == TripStatus.EXPLORE:
-            print("TripStatus.EXPLORE")
-            features.append(0)
-            features.append(1)
-            features.append(0)
-        elif curr_status == TripStatus.BACKWORD:
-            print("TripStatus.BACKWORD")
-            features.append(0)
-            features.append(0)
-            features.append(1)
+        features.append(scout.float_attr.health / scout.float_attr.health_max)
+        if self._have_enemies(obs):
+            features.append(float(1))
         else:
-            print("TripStatus.TERMINAL")
-            features.append(0)
-            features.append(0)
-            features.append(0)
+            features.append(float(0))
 
+        if self._src.in_range((scout.float_attr.pos_x, scout.float_attr.pos_y)):
+            features.append(float(1))
+        else:
+            features.append(float(0))
+
+        if self._dest.in_range((scout.float_attr.pos_x, scout.float_attr.pos_y)):
+            features.append(float(1))
+        else:
+            features.append(float(0))
+
+        #print("vec_feature=", features)
         return np.array(features)
 
-    def _count_enemies(self,obs):
+    def _have_enemies(self,obs):
         enemy_count = 0
         units = obs.observation['units']
         for u in units:
-            if (u.int_attr.alliance == sm.AllianceType.ENEMY.value) and (
-                    u.unit_type in sm.COMBAT_UNITS or u.unit_type in sm.COMBAT_AIR_UNITS):
+            if (u.int_attr.alliance == sm.AllianceType.ENEMY.value):
+               if (u.unit_type in sm.COMBAT_UNITS or u.unit_type in sm.COMBAT_AIR_UNITS):
                 enemy_count += 1
-        return enemy_count
-
+        if enemy_count > 0:
+            return True
+        else:
+            return False
 
 

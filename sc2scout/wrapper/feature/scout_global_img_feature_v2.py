@@ -29,7 +29,7 @@ class ScoutGlobalImgFeatureV2(ImgFeatExtractor):
         channel_base = self.owner_attr_channel(owners, image, channel_base)
         channel_base = self.enemy_attr_channel(enemys, image, channel_base)
         channel_base = self.scout_scan_channel(env, image, channel_base)
-        #print('channel total number=', channel_base)
+        #print('global channelbase=', channel_base)
         #print('image=', image)
         return image
 
