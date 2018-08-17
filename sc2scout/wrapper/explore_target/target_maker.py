@@ -46,3 +46,20 @@ class TargetMakerV2(WrapperMaker):
     def model_wrapper(self):
         pass
 
+class TargetMakerV3(WrapperMaker):
+    def __init__(self):
+        super(TargetMakerV3, self).__init__('target_v3')
+
+    def make_wrapper(self, env):
+        if env is None:
+            raise Exception('input env is None')
+        env = EvadeActWrapper(env)
+        env = TargetTerminalWrapperV1(env)
+        env = TargetSimpleRwdWrapper(env, 32, 12)
+        env = TargetObsWrapperV1(env, 32, 128, 32, False)
+        env = ZergScoutWrapper(env)
+        return env
+
+    def model_wrapper(self):
+        pass
+

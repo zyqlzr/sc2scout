@@ -39,18 +39,9 @@ class ScoutGlobalImgFeatureV2(ImgFeatExtractor):
         return Box(low, high)
 
     def pos_channel(self, env, image, channel_num):
-        home = env.unwrapped.owner_base()
-        h_i, h_j = self.pos_2_2d(home[0], home[1])
-
-        target = env.unwrapped.enemy_base()
-        t_i, t_j = self.pos_2_2d(target[0], target[1])
-
         scout = env.unwrapped.scout()
-        s_i, s_j = self.pos_2_2d(scout.float_attr.pos_x, scout.float_attr.pos_y)
-
-        image[h_i, h_j, channel_num] = 1
-        image[t_i, t_j, channel_num] = 1
-        image[s_i, s_j, channel_num] = 1
+        i, j = self.pos_2_2d(scout.float_attr.pos_x, scout.float_attr.pos_y)
+        image[i, j, channel_num] = 1
         return channel_num + 1
 
     def scout_scan_channel(self, env, image, channel_base):
