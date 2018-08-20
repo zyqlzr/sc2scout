@@ -1,11 +1,11 @@
 from sc2scout.wrapper.explore_enemy.zerg_scout_wrapper import ZergScoutWrapper
 from sc2scout.wrapper.evade_enemy.evade_act_wrapper import EvadeActWrapper
 from sc2scout.wrapper.explore_target.target_terminal_wrapper import TargetTerminalWrapper, \
-TargetTerminalWrapperV1
+TargetTerminalWrapperV1, TargetTerminalWrapperV2
 from sc2scout.wrapper.explore_target.target_rwd_wrapper import ExploreTargetRwdWrapper, \
-TargetSimpleRwdWrapper
+TargetSimpleRwdWrapper, TargetRoundTripRwdWrapper
 from sc2scout.wrapper.explore_target.target_obs_wrapper import TargetObsWrapper, \
-TargetObsWrapperV1
+TargetObsWrapperV1, TargetObsWrapperV2
 from sc2scout.wrapper.wrapper_factory import WrapperMaker
 
 from baselines import deepq
@@ -62,4 +62,22 @@ class TargetMakerV3(WrapperMaker):
 
     def model_wrapper(self):
         pass
+
+class TargetMakerV4(WrapperMaker):
+    def __init__(self):
+        super(TargetMakerV4, self).__init__('target_v4')
+
+    def make_wrapper(self, env):
+        if env is None:
+            raise Exception('input env is None')
+        env = EvadeActWrapper(env)
+        env = TargetTerminalWrapperV2(env, 32, 12, 400)
+        env = TargetRoundTripRwdWrapper(env, 32, 12, 400)
+        env = TargetObsWrapperV2(env, 32, 12, 400)
+        env = ZergScoutWrapper(env)
+        return env
+
+    def model_wrapper(self):
+        pass
+
 

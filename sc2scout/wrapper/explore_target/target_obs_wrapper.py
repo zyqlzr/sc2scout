@@ -6,6 +6,7 @@ from sc2scout.wrapper.feature.scout_global_img_feature_v1 import ScoutGlobalImgF
 from sc2scout.wrapper.feature.scout_global_img_feature_v2 import ScoutGlobalImgFeatureV2
 from sc2scout.wrapper.feature.scout_local_img_feature_v1 import ScoutLocalImgFeatureV1
 from sc2scout.wrapper.feature.scout_vec_feature import ScoutVecFeatureV1 
+from sc2scout.wrapper.feature.scout_global_img_feature_v3 import ScoutGlobalImgFeatureV3
 
 class TargetObsWrapper(gym.ObservationWrapper):
     def __init__(self, env, compress_width, range_width, explore_step):
@@ -79,4 +80,29 @@ class TargetObsWrapperV1(gym.ObservationWrapper):
         high = np.ones(g_dim + l_dim + v_dim)
         self.observation_space = Box(low, high)
         print("obs space", self.observation_space)
+
+class TargetObsWrapperV2(gym.ObservationWrapper):
+    def __init__(self, env, compress_width, range_width, explore_step):
+        super(TargetObsWrapperV2, self).__init__(env)
+        self._obs = ScoutGlobalImgFeatureV3(compress_width, range_width, explore_step, False)
+        self._init_obs_space()
+
+    def _reset(self):
+        obs = self.env._reset()
+        self._obs.reset(self.env)
+        obs = self.observation(obs)
+        return obs
+
+    def _step(self, action):
+        obs, rwd, done, other = self.env._step(action)
+        obs = self.observation(obs)
+        return obs, rwd, done, other
+
+    def _init_obs_space(self):
+        self.observation_space = self._obs.obs_space()
+        print('Evade img obs space=', self._obs.obs_space())
+
+    def _observation(self, obs):
+        return self._obs.extract(self.env, obs)
+
 
