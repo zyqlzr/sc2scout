@@ -84,10 +84,10 @@ class ScoutGlobalImgFeatureV3(ImgFeatExtractor):
         zeros  = np.zeros([self._compress_width, self._compress_width])
         if self._status.status() == RoundTripStatus.EXPLORE:
             image[:, :, channel_base] = ones
-            print('explore feature')
+            #print('explore feature')
         else:
             image[:, :, channel_base] = zeros
-            print('backward feature')
+            #print('backward feature')
         return channel_base + 1
  
     def nertral_attr_channel(self, neutrals, image, channel_base):

@@ -106,7 +106,6 @@ class TargetTerminalWrapperV2(gym.Wrapper):
 
         scout = self.env.unwrapped.scout()
         status = self._status.check_status((scout.float_attr.pos_x, scout.float_attr.pos_y))
-        print('status=', status)
         if status == RoundTripStatus.TERMINAL:
             return True
         elif status == RoundTripStatus.BACKWORD:
