@@ -48,17 +48,18 @@ class ScoutGlobalImgFeatureV3(ImgFeatExtractor):
         high = np.ones([self._compress_width, self._compress_width, self._channel_num])
         return Box(low, high)
 
+    def home_pos_channel(self, env, image, channel_num):
+        home = env.unwrapped.owner_base()
+        i, j = self.pos_2_2d(home[0], home[1])
+        #print("home coordinate({}, {}), home={}".format(i, j, home))
+        image[i, j, channel_num] += 1
+        return channel_num + 1
+
     def target_pos_channel(self, env, image, channel_num):
-        if self._status.status() == RoundTripStatus.EXPLORE:
-            target = env.unwrapped.enemy_base()
-            i, j = self.pos_2_2d(target[0], target[1])
-            #print("target coordinate({}, {}), target={}".format(i, j, target))
-            image[i, j, channel_num] += 1
-        else:
-            home = env.unwrapped.owner_base()
-            i, j = self.pos_2_2d(home[0], home[1])
-            #print("home coordinate({}, {}), home={}".format(i, j, home))
-            image[i, j, channel_num] += 1
+        target = env.unwrapped.enemy_base()
+        i, j = self.pos_2_2d(target[0], target[1])
+        #print("target coordinate({}, {}), target={}".format(i, j, target))
+        image[i, j, channel_num] += 1
         return channel_num + 1
 
     def scout_attr_channel(self, env, image, channel_base):
@@ -75,6 +76,8 @@ class ScoutGlobalImgFeatureV3(ImgFeatExtractor):
         image[i, j, channel_base + 3] = scout.float_attr.radius
         image[i, j, channel_base + 4] = scout.float_attr.health / scout.float_attr.health_max
         #print("scout image attr:", image[i,j,:])
+        #print("scout image attr: facing={},radius={},health={}".format(
+        #      scout.float_attr.facing, scout.float_attr.radius, scout.float_attr.health))
         return channel_base + 5
 
     def scout_status_channel(self, env, image, channel_base):

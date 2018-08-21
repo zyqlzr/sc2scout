@@ -33,7 +33,7 @@ class BackwardFinalRwd(Reward):
                 self.rwd = 1 * self.w
             else:
                 self.rwd = 0 
-            #print('final_rwd=', self.rwd)
+            print('backword final_rwd=', self.rwd)
         else:
             self.rwd = 0
 

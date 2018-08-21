@@ -215,12 +215,11 @@ class TargetRoundTripRwdWrapper(TargetRoundTripRwd):
         super(TargetRoundTripRwdWrapper, self).__init__(env, compress_width, range_width, explore_step)
 
     def _assemble_reward(self):
-        self._explore_rewards = [ir.EvadeUnderAttackRwd(),
-                                 ir.EvadeInTargetRangeRwd(self._compress_width, self._range_width),
+        self._explore_rewards = [ir.EvadeInTargetRangeRwd(self._compress_width, self._range_width),
                                  sr.ViewEnemyReward(weight=30)]
         self._backward_rewards = [br.BackwardRwd(),
-                                  ir.EvadeUnderAttackRwd(),
                                   br.BackwardFinalRwd()]
-        self._final_rewards = [ir.EvadeFinalRwd()]
+        self._final_rewards = [ir.EvadeUnderAttackRwd(),
+                               ir.EvadeFinalRwd()]
 
 
