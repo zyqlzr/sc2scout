@@ -2,10 +2,11 @@ import gym
 import numpy as np
 from gym.spaces import Box, Tuple
 
+from sc2scout.wrapper.feature.scout_global_img_feature import ScoutGlobalImgFeature
 from sc2scout.wrapper.feature.scout_global_img_feature_v1 import ScoutGlobalImgFeatureV1
 from sc2scout.wrapper.feature.scout_global_img_feature_v2 import ScoutGlobalImgFeatureV2
 from sc2scout.wrapper.feature.scout_local_img_feature_v1 import ScoutLocalImgFeatureV1
-from sc2scout.wrapper.feature.scout_vec_feature import ScoutVecFeatureV1 
+from sc2scout.wrapper.feature.scout_vec_feature import ScoutVecFeatureV1, ScoutVecFeatureV2
 from sc2scout.wrapper.feature.scout_global_img_feature_v3 import ScoutGlobalImgFeatureV3
 
 class TargetObsWrapper(gym.ObservationWrapper):
@@ -105,4 +106,45 @@ class TargetObsWrapperV2(gym.ObservationWrapper):
     def _observation(self, obs):
         return self._obs.extract(self.env, obs)
 
+class TargetObsWrapperV3(gym.ObservationWrapper):
+    def __init__(self, env, compress_width, range_width, reverse):
+        super(TargetObsWrapperV3, self).__init__(env)
+        self._global = ScoutGlobalImgFeature(compress_width, False)
+        self._vec = ScoutVecFeatureV2(compress_width, range_width)
+        self._init_obs_space()
+        print("TargetObsWrapperV3: g_shape={};v_shape={};total_obs_shape={}".format(
+              self._global.obs_space().shape, self._vec.obs_space().shape,
+              self.observation_space.shape))
+
+    def _reset(self):
+        obs = self.env._reset()
+        self._global.reset(self.env)
+        self._vec.reset(self.env)
+        obs = self.observation(obs)
+        return obs
+
+    def _step(self, action):
+        obs, rwd, done, other = self.env._step(action)
+        obs = self.observation(obs)
+        return obs, rwd, done, other
+
+    def observation(self, obs):
+        g_img = self._global.extract(self.env, obs)
+        vec = self._vec.extract(self.env, obs)
+        return np.hstack([g_img.flatten(), vec])
+
+    def _get_dim(self, ob_space):
+        shape_size = len(ob_space.shape)
+        dim = 1
+        for i in range(0, shape_size):
+            dim = dim * ob_space.shape[i]
+        return dim
+
+    def _init_obs_space(self):
+        g_dim = self._get_dim(self._global.obs_space())
+        v_dim = self._get_dim(self._vec.obs_space())
+        low =  np.zeros(g_dim + v_dim)
+        high = np.ones(g_dim + v_dim)
+        self.observation_space = Box(low, high)
+        print("obs space", self.observation_space)
 
