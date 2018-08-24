@@ -4,7 +4,8 @@ ExploreMakerV2, ExploreMakerV6, ExploreMakerV8, ExploreMakerV9, ExploreMakerV10,
 ExploreMakerV12
 from sc2scout.wrapper.evade_enemy import EvadeMakerV0, EvadeMakerV1
 from sc2scout.wrapper.explore_target import TargetMakerV1,TargetMakerV2, \
-TargetMakerV3, TargetMakerV4, TargetMakerV5, TargetMakerV6, TargetMakerV7
+TargetMakerV3, TargetMakerV4, TargetMakerV5, TargetMakerV6, TargetMakerV7, \
+TargetMakerV8
 
 register('explore_v0', ExploreMakerV0())
 register('explore_v2', ExploreMakerV2())
@@ -22,4 +23,5 @@ register('target_v4', TargetMakerV4())
 register('target_v5', TargetMakerV5())
 register('target_v6', TargetMakerV6())
 register('target_v7', TargetMakerV7())
+register('target_v8', TargetMakerV8())
 

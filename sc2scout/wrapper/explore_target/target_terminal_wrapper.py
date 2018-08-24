@@ -89,7 +89,7 @@ class TargetTerminalWrapperV2(gym.Wrapper):
         self._status = RoundTripCourse(home_pos, enemy_pos, 
                                   (x_range, y_range), self._explore_step)
         self._status.reset()
-        self._home_base = DestRange(self.env.unwrapped.owner_base())
+        self._home_base = DestRange(self.env.unwrapped.owner_base(), dest_range=14)
         return obs
 
     def _step(self, action):

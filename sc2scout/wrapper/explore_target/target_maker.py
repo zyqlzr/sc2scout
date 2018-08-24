@@ -6,7 +6,7 @@ from sc2scout.wrapper.explore_target.target_rwd_wrapper import ExploreTargetRwdW
 TargetSimpleRwdWrapper, TargetRoundTripRwdWrapper
 from sc2scout.wrapper.explore_target.target_obs_wrapper import TargetObsWrapper, \
 TargetObsWrapperV1, TargetObsWrapperV2, TargetObsWrapperV3, TargetObsWrapperV4, \
-TargetObsWrapperV5
+TargetObsWrapperV5, TargetObsWrapperV6
 from sc2scout.wrapper.wrapper_factory import WrapperMaker
 
 from baselines import deepq
@@ -126,6 +126,23 @@ class TargetMakerV7(WrapperMaker):
         env = TargetTerminalWrapperV1(env)
         env = TargetSimpleRwdWrapper(env, 32, 12)
         env = TargetObsWrapperV5(env, 32, 12)
+        env = ZergScoutWrapper(env)
+        return env
+
+    def model_wrapper(self):
+        pass
+
+class TargetMakerV8(WrapperMaker):
+    def __init__(self):
+        super(TargetMakerV8, self).__init__('target_v8')
+
+    def make_wrapper(self, env):
+        if env is None:
+            raise Exception('input env is None')
+        env = EvadeActWrapper(env)
+        env = TargetTerminalWrapperV2(env, 32, 12, 500)
+        env = TargetRoundTripRwdWrapper(env, 32, 12, 500)
+        env = TargetObsWrapperV6(env, 32, 12, 500)
         env = ZergScoutWrapper(env)
         return env
 

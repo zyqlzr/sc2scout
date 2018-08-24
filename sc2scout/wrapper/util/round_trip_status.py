@@ -53,6 +53,9 @@ class RoundTripCourse(object):
 
     def status(self):
         return self._status
+
+    def progress_bar(self):
+        return float(self._curr_step / self._target_step)
  
     def _in_home_range(self, pos):
         if pos[0] > self._hx_low:
