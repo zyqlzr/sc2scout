@@ -16,14 +16,7 @@ class VecFeature(FeatureExtractor):
 
     def reset(self, env):
         self._map_size = env.unwrapped.map_size()
-        self._reverse = self._judge_reverse(env)
-
-    def _judge_reverse(self, env):
-        scout = env.unwrapped.scout()
-        if scout.float_attr.pos_x < scout.float_attr.pos_y:
-            return False
-        else:
-            return True
+        self._reverse = env.unwrapped.judge_reverse()
 
     def _pos_transfer(self, x, y):
         if not self._reverse:

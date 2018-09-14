@@ -139,4 +139,10 @@ class FullGameScoutEnv(gym.Env):
     def save_replay(self, replay_dir):
         pass
 
+    def judge_reverse(self):
+        home = self._owner_base_pos
+        if home[0] < home[1]:
+            return False
+        else:
+            return True
 

@@ -65,6 +65,13 @@ class ZergScoutEnv(SC2GymEnv):
     def map_size(self):
         return self._map_size
 
+    def judge_reverse(self):
+        home = self._owner_base_pos
+        if home[0] < home[1]:
+            return False
+        else:
+            return True
+
     def _update(self, obs):
         units = obs.observation['units']
         for u in units:

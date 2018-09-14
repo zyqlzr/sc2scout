@@ -25,7 +25,7 @@ flags.DEFINE_string("agent_interface_format", "feature",
                     "Agent Interface Format: [feature|rgb]")
 
 flags.DEFINE_integer("max_agent_episodes", 1, "Total agent episodes.")
-flags.DEFINE_integer("max_step", 10000, "Game steps per episode.")
+flags.DEFINE_integer("max_step", 4000, "Game steps per episode.")
 flags.DEFINE_integer("step_mul", 8, "Game steps per agent step.")
 flags.DEFINE_integer("random_seed", None, "Random_seed used in game_core.")
 
@@ -139,6 +139,9 @@ def main(unused_argv):
                 act_val = 7
             if random_support:
                 act_val = random.randint(0, 8)
+
+            if n_step == 130:
+                act_val = 8
 
             #print('step rwd=', rwd, ',action=', action, "obs=", obs)
             if done:
