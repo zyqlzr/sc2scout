@@ -183,9 +183,10 @@ def main(unused_argv):
             obs = np.reshape(obs, (1,) + obs.shape)  # convert shape (32,32,20) to (1,32,32,20)
             action, value, state, _ = agent.step(obs, state, done)
             obs, rwd, done, info = env.step(action)
-            print('action=', action, '; rwd=', rwd, '; step=', n_step)
-            # print('step rwd=', rwd, ',action=', action, "obs=", obs)
             total_rwd += rwd
+            print('action=', action, '; rwd=', 
+                  rwd, '; step=', n_step, "; total_rwd=", total_rwd)
+            # print('step rwd=', rwd, ',action=', action, "obs=", obs)
             if done:
                 print("game over, total_rwd=", total_rwd)
                 break

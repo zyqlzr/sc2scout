@@ -6,7 +6,7 @@ from sc2scout.wrapper.evade_enemy import EvadeMakerV0, EvadeMakerV1
 from sc2scout.wrapper.explore_target import TargetMakerV1,TargetMakerV2, \
 TargetMakerV3, TargetMakerV4, TargetMakerV5, TargetMakerV6, TargetMakerV7, \
 TargetMakerV8
-from sc2scout.wrapper.fullgame_scout import FullGameMaker
+from sc2scout.wrapper.fullgame_scout import FullGameMaker, FullGameMiniMaker
 
 
 register('explore_v0', ExploreMakerV0())
@@ -27,4 +27,5 @@ register('target_v6', TargetMakerV6())
 register('target_v7', TargetMakerV7())
 register('target_v8', TargetMakerV8())
 register('fullgame_v0', FullGameMaker())
+register('fullgame_mini_v0', FullGameMiniMaker())
 
