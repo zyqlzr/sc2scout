@@ -38,12 +38,12 @@ class FullGameLocalImg(ImgLocalFeatExtractor):
             #print('enemy coordinate={},{}'.format(i, j))
             if u.unit_type in sm.COMBAT_AIR_UNITS:
                 image[i, j, channel_base + 0] += (1.0 / MAX_UNIT_NUM)
-                print('enemy air:[{},{},{}] = {}'.format(
-                      i, j, channel_base, image[i, j, channel_base]))
+                #print('enemy air:[{},{},{}] = {}'.format(
+                #      i, j, channel_base, image[i, j, channel_base]))
             else:
                 image[i, j, channel_base + 1] += (1.0 / MAX_UNIT_NUM)
-                print('enemy unit:[{},{},{}] = {}'.format(
-                      i, j, channel_base + 1, image[i, j, channel_base + 1]))
+                #print('enemy unit:[{},{},{}] = {}'.format(
+                #      i, j, channel_base + 1, image[i, j, channel_base + 1]))
         return channel_base + 2
 
     def unit_dispatch(self, obs):
