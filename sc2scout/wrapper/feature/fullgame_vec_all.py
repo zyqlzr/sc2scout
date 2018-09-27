@@ -61,7 +61,7 @@ class FullGameVecAll(VecFeature):
         features.append(float(1 if self._land_force else 0))
         features.append(float(1 if self._base_upgrade else 0))
         features.append(float(env.unwrapped.step_number() / env.unwrapped.max_step_number()))
-        print("vecs=", features)
+        #print("vecs=", features)
         return features
 
     def _analysis_enemy(self, obs, env):
