@@ -8,10 +8,9 @@ GLOBAL_CHANNEL = 7
 MAX_UNIT_NUM = 100.
 
 class FullGameGlobalImgV1(ImgFeatExtractor):
-    def __init__(self, compress_width, range_width):
+    def __init__(self, compress_width):
         super(FullGameGlobalImgV1, self).__init__(compress_width)
         self._channel_num = GLOBAL_CHANNEL
-        self._range_width = range_width
 
     def reset(self, env):
         super(FullGameGlobalImgV1, self).reset(env)

@@ -1,8 +1,10 @@
 from sc2scout.wrapper.explore_enemy.zerg_scout_wrapper import ZergScoutWrapper
 from sc2scout.wrapper.fullgame_scout.fullgame_act_wrapper import FullGameActWrapper
-from sc2scout.wrapper.fullgame_scout.fullgame_rwd_wrapper import FullGameRwdWrapper
+from sc2scout.wrapper.fullgame_scout.fullgame_rwd_wrapper import FullGameRwdWrapper, \
+FullGameRwdWrapperV1
 from sc2scout.wrapper.fullgame_scout.fullgame_obs_wrapper import FullGameObsWrapper, \
-FullGameObsMiniWrapper, FullGameObsMiniWrapperV1, FullGameObsMiniWrapperV2
+FullGameObsMiniWrapper, FullGameObsMiniWrapperV1, FullGameObsMiniWrapperV2, \
+FullGameObsWrapperV1
 from sc2scout.wrapper.fullgame_scout.fullgame_terminal_wrapper import FullGameTerminalWrapper
 from sc2scout.wrapper.wrapper_factory import WrapperMaker
 
@@ -16,7 +18,7 @@ class FullGameMaker(WrapperMaker):
         env = FullGameActWrapper(env)
         env = FullGameTerminalWrapper(env)
         env = FullGameRwdWrapper(env, 32, 12)
-        env = FullGameObsWrapper(env, 32, 12)
+        env = FullGameObsWrapper(env, 32)
         env = ZergScoutWrapper(env)
         return env
 
@@ -34,7 +36,7 @@ class FullGameMiniMaker(WrapperMaker):
         env = FullGameActWrapper(env)
         env = FullGameTerminalWrapper(env)
         env = FullGameRwdWrapper(env, 32, 12)
-        env = FullGameObsMiniWrapper(env, 32, 12)
+        env = FullGameObsMiniWrapper(env, 32)
         env = ZergScoutWrapper(env)
         return env
 
@@ -52,7 +54,7 @@ class FullGameMiniMakerV1(WrapperMaker):
         env = FullGameActWrapper(env)
         env = FullGameTerminalWrapper(env)
         env = FullGameRwdWrapper(env, 32, 12)
-        env = FullGameObsMiniWrapperV1(env, 32, 12)
+        env = FullGameObsMiniWrapperV1(env, 32)
         env = ZergScoutWrapper(env)
         return env
 
@@ -70,7 +72,60 @@ class FullGameMiniMakerV2(WrapperMaker):
         env = FullGameActWrapper(env)
         env = FullGameTerminalWrapper(env)
         env = FullGameRwdWrapper(env, 32, 12)
-        env = FullGameObsMiniWrapperV2(env, 32, 12, 12)
+        env = FullGameObsMiniWrapperV2(env, 32, 12)
+        env = ZergScoutWrapper(env)
+        return env
+
+    def model_wrapper(self):
+        pass
+
+class FullGameMiniMakerV3(WrapperMaker):
+    def __init__(self):
+        super(FullGameMiniMakerV3, self).__init__('fullgame_mini_v3')
+
+    def make_wrapper(self, env):
+        if env is None:
+            raise Exception('input env is None')
+        env = FullGameActWrapper(env)
+        env = FullGameTerminalWrapper(env)
+        env = FullGameRwdWrapper(env, 32, 12)
+        env = FullGameObsWrapperV1(env, 32, 12)
+        env = ZergScoutWrapper(env)
+        return env
+
+    def model_wrapper(self):
+        pass
+
+
+class FullGameMakerV1(WrapperMaker):
+    def __init__(self):
+        super(FullGameMakerV1, self).__init__('fullgame_v')
+
+    def make_wrapper(self, env):
+        if env is None:
+            raise Exception('input env is None')
+        env = FullGameActWrapper(env)
+        env = FullGameTerminalWrapper(env)
+        env = FullGameRwdWrapperV1(env, 20)
+        env = FullGameObsWrapperV1(env, 32)
+        env = ZergScoutWrapper(env)
+        return env
+
+    def model_wrapper(self):
+        pass
+
+
+class FullGameMakerV2(WrapperMaker):
+    def __init__(self):
+        super(FullGameMakerV2, self).__init__('fullgame_v')
+
+    def make_wrapper(self, env):
+        if env is None:
+            raise Exception('input env is None')
+        env = FullGameActWrapper(env)
+        env = FullGameTerminalWrapper(env)
+        env = FullGameRwdWrapperV1(env, 20)
+        env = FullGameObsWrapperV1(env, 32, 12)
         env = ZergScoutWrapper(env)
         return env
 

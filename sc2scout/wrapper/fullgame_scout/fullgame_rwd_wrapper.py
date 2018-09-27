@@ -39,3 +39,15 @@ class FullGameRwdWrapper(FullGameSimpleRwd):
                          ir.EvadeFinalRwd()]
 
 
+class FullGameRwdWrapperV1(FullGameSimpleRwd):
+    def __init__(self, env, target_range):
+        super(FullGameRwdWrapperV1, self).__init__(env)
+        self._target_range = target_range
+
+    def _assemble_reward(self):
+        self._rewards = [ir.EvadeUnderAttackRwd(),
+                         fr.FullGameInTargetRangeRwd(self._target_range),
+                         fr.FullGameViewRwd(weight=5),
+                         ir.EvadeFinalRwd()]
+
+

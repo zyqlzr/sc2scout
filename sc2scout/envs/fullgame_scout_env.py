@@ -15,6 +15,8 @@ FULLGAME_MAP_SIZE = {
     'Acolyte': (168, 200),
 }
 
+MAX_STEP_DEF = 10000
+
 class FullGameScoutEnv(gym.Env):
     def __init__(self, **kwargs):
         self._kwargs = kwargs
@@ -28,6 +30,7 @@ class FullGameScoutEnv(gym.Env):
         self._sc2env = None
         self._episode = 0
         self._num_step = 0
+        self._max_step_num = MAX_STEP_DEF
         self._episode_reward = 0
         self._total_reward = 0
         self._last_obs = None
@@ -135,6 +138,12 @@ class FullGameScoutEnv(gym.Env):
 
     def map_size(self):
         return self._map_size
+
+    def step_number(self):
+        return self._num_step
+
+    def max_step_number(self):
+        return self._max_step_num
 
     def save_replay(self, replay_dir):
         pass

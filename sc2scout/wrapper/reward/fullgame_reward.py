@@ -60,3 +60,34 @@ class FullGameViewRwd(Reward):
         else:
             return False
 
+
+class FullGameInTargetRangeRwd(Reward):
+    def __init__(self, range_width, weight=1):
+        super(FullGameInTargetRangeRwd, self).__init__(weight)
+        self._target = None
+        self._range_width = range_width
+ 
+    def reset(self, obs, env):
+        self._target = env.unwrapped.enemy_base()
+
+    def compute_rwd(self, obs, reward, done, env):
+        scout = env.unwrapped.scout()
+        in_range = self._in_range(env)
+        if in_range:
+            self.rwd = 0
+        else:
+            self.rwd = -1 * self.w
+        #print('InRange scout=({}, {}), Rwd={}'.format(
+        #    scout.float_attr.pos_x, scout.float_attr.pos_y, self.rwd))
+
+    def _in_range(self, env):
+        scout = env.unwrapped.scout()
+        dist = sm.calculate_distance(scout.float_attr.pos_x,
+                                     scout.float_attr.pos_y,
+                                     self._target[0],
+                                     self._target[1])
+        if dist <= self._range_width:
+            return True
+        else:
+            return False
+
