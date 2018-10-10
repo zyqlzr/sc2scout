@@ -68,16 +68,16 @@ class FullGameVecAll(VecFeature):
         enemys = self._unit_dispatch(obs)
         for u in enemys:
             if u.unit_type == UNIT_TYPEID.ZERG_SPAWNINGPOOL.value:
-                if not self._spawning_pool and self._check_view(env, u):
+                if not self._spawning_pool:
                     self._spawning_pool = True
             elif u.unit_type in QUEEN_TYPES or u.unit_type in sm.COMBAT_AIR_UNITS:
-                if not self._air_force and self._check_view(env, u):
+                if not self._air_force:
                     self._air_force = True
             elif u.unit_type in sm.COMBAT_UNITS:
-                if not self._land_force and self._check_view(env, u):
+                if not self._land_force:
                     self._land_force = True
             elif u.unit_type in BASE_UPGRADE:
-                if not self._base_upgrade and self._check_view(env, u):
+                if not self._base_upgrade:
                     self._base_upgrade = True
             else:
                 pass

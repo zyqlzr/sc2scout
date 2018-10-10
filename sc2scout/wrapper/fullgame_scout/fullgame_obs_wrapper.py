@@ -192,7 +192,7 @@ class FullGameObsWrapperV1(gym.ObservationWrapper):
         self._local = FullGameLocalImg(compress_width, local_range)
         self._vec = FullGameVecAll()
         self._init_obs_space()
-        print("TargetObsWrapperV3: g_shape={};l_shape={};v_shape={};total_obs_shape={}".format(
+        print("FullGameObsWrapperV1: g_shape={};l_shape={};v_shape={};total_obs_shape={}".format(
               self._global.obs_space().shape, self._local.obs_space().shape,
               self._vec.obs_space().shape, self.observation_space.shape))
 
@@ -230,5 +230,4 @@ class FullGameObsWrapperV1(gym.ObservationWrapper):
         high = np.ones(g_dim + l_dim + v_dim)
         self.observation_space = Box(low, high)
         print("obs space", self.observation_space)
-
 

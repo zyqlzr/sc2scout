@@ -107,7 +107,7 @@ class FullGameMakerV1(WrapperMaker):
         env = FullGameActWrapper(env)
         env = FullGameTerminalWrapper(env)
         env = FullGameRwdWrapperV1(env, 20)
-        env = FullGameObsWrapperV1(env, 32)
+        env = FullGameObsMiniWrapperV1(env, 32)
         env = ZergScoutWrapper(env)
         return env
 
@@ -124,7 +124,7 @@ class FullGameMakerV2(WrapperMaker):
             raise Exception('input env is None')
         env = FullGameActWrapper(env)
         env = FullGameTerminalWrapper(env)
-        env = FullGameRwdWrapperV1(env, 20)
+        env = FullGameRwdWrapperV1(env, 40)
         env = FullGameObsWrapperV1(env, 32, 12)
         env = ZergScoutWrapper(env)
         return env
