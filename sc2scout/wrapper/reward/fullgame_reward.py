@@ -1,5 +1,6 @@
 from sc2scout.envs import scout_macro as sm
 from sc2scout.wrapper.reward.reward import Reward
+import math
 
 MAX_VIEW_RANGE = 12
 
@@ -90,4 +91,45 @@ class FullGameInTargetRangeRwd(Reward):
             return True
         else:
             return False
+
+
+class FullGameMoveToTarget(Reward):
+    def __init__(self, target_range, weight=1):
+        super(FullGameMoveToTarget, self).__init__(weight)
+        self._target_range = target_range
+
+    def reset(self, obs, env):
+        self._curr_dist = self._compute_curr_dist(env)
+        self._max_dist = self._compute_curr_dist(env)
+        self._rwd_sum = 0.0
+        self._max_rwd_sum = 100.0
+        self._last_left_rwd = 100
+
+    def compute_rwd(self, obs, reward, done, env):
+        curr_dist = self._compute_curr_dist(env)
+        survive = env.unwrapped.scout_survive()
+        if curr_dist == self._curr_dist:
+            self.rwd = 0
+            return
+
+        rwd = self._compute_rwd(curr_dist)
+        self.rwd = self.w * rwd
+        self._curr_dist = curr_dist
+        #print('underattack rwd; rwd={}, rwd_sum={}'.format(self.rwd, self._rwd_sum))
+
+    def _compute_rwd(self, curr_dist):
+        left_rwd = math.floor(int((curr_dist/ self._max_dist) * self._max_rwd_sum))
+        rwd = self._last_left_rwd - left_rwd
+        self._last_left_rwd = left_rwd
+        self._rwd_sum += rwd
+        return rwd
+
+    def _compute_curr_dist(self, env):
+        scout = env.unwrapped.scout()
+        enemy_pos = env.unwrapped.enemy_base()
+        dist = sm.calculate_distance(scout.float_attr.pos_x,
+                                     scout.float_attr.pos_y,
+                                     enemy_pos[0], enemy_pos[1])
+        return dist - self._target_range
+
 

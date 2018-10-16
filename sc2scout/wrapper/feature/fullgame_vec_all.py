@@ -5,6 +5,7 @@ from pysc2.lib.typeenums import RACE, UNIT_TYPEID, ABILITY_ID, UPGRADE_ID, BUFF_
 
 from sc2scout.wrapper.feature.scout_vec_feature import VecFeature
 from sc2scout.wrapper.feature.feature_extractor import FeatureExtractor
+from sc2scout.wrapper.util.dest_range import DestRange
 import sc2scout.envs.scout_macro as sm
 
 MAX_RADIUS_NUM = 360.
@@ -104,4 +105,33 @@ class FullGameVecAll(VecFeature):
 
         return enemys
 
+
+class FullGameVecAllV1(FullGameVecAll):
+    def __init__(self, target_range):
+        super(FullGameVecAllV1, self).__init__()
+        self._target_range = target_range
+        self._target = None
+
+    def reset(self, env):
+        super(FullGameVecAllV1, self).reset(env)
+        self._target = DestRange(env.unwrapped.enemy_base(), 
+                                 dest_range=self._target_range)
+
+    def obs_space(self):
+        low = np.zeros(14)
+        high = np.ones(14)
+        return Box(low, high)
+
+    def extract(self, env, obs):
+        features = super(FullGameVecAllV1, self).extract(env, obs)
+        scout = env.unwrapped.scout()
+        if self._target.in_range((scout.float_attr.pos_x,
+                                  scout.float_attr.pos_y)):
+            print('feature in range')
+            features.append(float(1))
+        else:
+            print('feature out of range')
+            features.append(float(0))
+        print('features=', features)
+        return features
 

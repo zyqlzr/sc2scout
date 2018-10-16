@@ -43,10 +43,9 @@ class DestRange(object):
     def in_range(self, pos):
         dist = sm.calculate_distance(pos[0], pos[1],
                                      self._center[0], self._center[1])
-        if dist > DEST_RANGE:
+        if dist > self._dest_range:
             return False
         else:
             return True 
-
 
 
