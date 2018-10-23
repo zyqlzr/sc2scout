@@ -6,6 +6,7 @@ from pysc2.env.environment import StepType
 
 from tstarbot.agents.zerg_agent import ZergAgent
 import tstarbot.data.pool.scout_pool as sp
+from sc2scout.envs import scout_macro as sm
 
 FULLGAME_MAP_SIZE = {
     'Simple64': (88, 96),
@@ -41,6 +42,9 @@ class FullGameScoutEnv(gym.Env):
         self._owner_base_pos = None
         self._map_size = None
 
+        #map{id, pos}
+        self._target_bases = {}
+
         self._init_action_space()
         self._init_map_size(self._kwargs['map_name'])
 
@@ -68,7 +72,7 @@ class FullGameScoutEnv(gym.Env):
         self._full_agent.reset()
         self._last_obs = self._sc2env.reset()
         self._reset_dc()
-        self._select_target_and_scout()
+        self._init_target_and_scout()
         return self._last_obs[0]
 
     def _step(self, scout_action):
@@ -105,21 +109,52 @@ class FullGameScoutEnv(gym.Env):
         for ts in self._last_obs:
             dc.update(ts)
 
-    def _select_target_and_scout(self):
+    def _init_target_and_scout(self):
         spool = self._full_agent.dc.dd.scout_pool
         self._scout = spool.select_scout()
-        #self._target = spool.find_enemy_subbase_target()
-        self._target = spool.find_furthest_idle_target()
+        self._scout.is_doing_task = True
+        self._owner_base_pos = spool.home_pos
 
         #print("scout_pool home_pos={},target_num={},scout_num={}".format(
         #      spool.home_pos, spool.scout_base_target_num(),
         #      len(spool.list_scout())))
         #print("fullgame scout={},target={}".format(self._scout, self._target))
-        self._owner_base_pos = spool.home_pos
-        self._scout.is_doing_task = True
-        self._target.has_scout = True
+
+        #self._target = spool.find_enemy_subbase_target()
+        #self._target.has_scout = True
+        self._init_target_bases()
+        self._target_id = self._find_furthest_target()
         self._fullgame_scout_flag = True
-        print("fullgame home_pos={},target_pos={}".format(self._owner_base_pos, self._target.pos))
+        print("fullgame home={},target={}".format(self._owner_base_pos,
+                                                  self._target_bases[self._target_id]))
+
+    def _dist(self, base):
+        pos = base.pos
+        dist = sm.calculate_distance(self._owner_base_pos[0],
+                                     self._owner_base_pos[1],
+                                     pos[0], pos[1])
+        return dist
+
+    def _init_target_bases(self):
+        spool = self._full_agent.dc.dd.scout_pool
+        bases = spool.get_scout_targets()
+        old_bases = bases
+        bases.sort(key=lambda x: self._dist(x))
+        for i in range(len(bases)):
+            self._target_bases[i] = bases[i].pos
+        print('base_positions=', self._target_bases)
+
+    def _find_furthest_target(self):
+        furthest_dist = 0.0
+        furthest_base = None
+        for key, value in self._target_bases.items():
+            dist = sm.calculate_distance(self._owner_base_pos[0],
+                                         self._owner_base_pos[1],
+                                         value[0], value[1])
+            if furthest_dist < dist:
+                furthest_dist = dist
+                furthest_base = key
+        return furthest_base
 
     def _push_scout_action_to_am(self, action):
         self._full_agent.am.push_actions(action[0])
@@ -134,7 +169,7 @@ class FullGameScoutEnv(gym.Env):
         return self._owner_base_pos
 
     def enemy_base(self):
-        return self._target.pos
+        return self._target_bases[self._target_id]
 
     def map_size(self):
         return self._map_size

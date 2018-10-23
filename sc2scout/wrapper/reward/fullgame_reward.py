@@ -133,3 +133,16 @@ class FullGameMoveToTarget(Reward):
         return dist - self._target_range
 
 
+class FullGameQuickArrived(Reward):
+    def __init__(self, target_range, weight=1):
+        super(FullGameQuickArrived, self).__init__(weight)
+        self._target_range = target_range
+
+    def reset(self, obs, env):
+        pass
+
+    def compute_rwd(self, obs, reward, done, env):
+        pass
+
+
+

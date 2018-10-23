@@ -127,11 +127,8 @@ class FullGameVecAllV1(FullGameVecAll):
         scout = env.unwrapped.scout()
         if self._target.in_range((scout.float_attr.pos_x,
                                   scout.float_attr.pos_y)):
-            print('feature in range')
             features.append(float(1))
         else:
-            print('feature out of range')
             features.append(float(0))
-        print('features=', features)
         return features
 
