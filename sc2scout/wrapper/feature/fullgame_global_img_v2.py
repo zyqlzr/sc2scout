@@ -35,9 +35,7 @@ class FullGameGlobalImgV2(ImgFeatExtractor):
             channel_base = self.nertral_attr_channel(neutrals, image, channel_base)
             channel_base = self.owner_attr_channel(owners, image, channel_base)
             channel_base = self.enemy_attr_channel(enemys, image, channel_base)
-            print('global_image, channel total number=', channel_base)
-        else:
-            print('empty global image')
+            #print('global_image, channel total number=', channel_base)
         #print('image=', image)
         return image
 

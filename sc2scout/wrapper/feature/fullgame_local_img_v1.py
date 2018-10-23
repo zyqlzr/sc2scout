@@ -27,10 +27,8 @@ class FullGameLocalImgV1(ImgLocalFeatExtractor):
                                   scout.float_attr.pos_y)):
             enemys = self.unit_dispatch(obs)
             channel_base = self.enemy_channel(enemys, image, 0)
-            print('local image: channel total number=', channel_base)
+            #print('local image: channel total number=', channel_base)
             #print('image=', image)
-        else:
-            print('empty local image')
         return image
 
     def obs_space(self):
