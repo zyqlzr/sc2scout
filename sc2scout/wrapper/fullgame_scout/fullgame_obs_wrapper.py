@@ -9,8 +9,10 @@ from sc2scout.wrapper.feature.fullgame_vec import FullGameVec
 from sc2scout.wrapper.feature.fullgame_vec_minimap import FullGameVecMinimap
 from sc2scout.wrapper.feature.fullgame_local_img import FullGameLocalImg
 from sc2scout.wrapper.feature.fullgame_local_img_v1 import FullGameLocalImgV1
+from sc2scout.wrapper.feature.fullgame_local_img_v2 import FullGameLocalImgV2
 from sc2scout.wrapper.feature.fullgame_vec_all import FullGameVecAll, \
 FullGameVecAllV1
+from sc2scout.wrapper.feature.fullgame_vec_v1 import FullGameVecV1
 
 class FullGameGVObsBase(gym.ObservationWrapper):
     def __init__(self, env, compress_width):
@@ -204,5 +206,23 @@ class FullGameObsWrapperV3(FullGameGLVObsBase):
                                          self._target_range)
         self._vec = FullGameVecAllV1(self._target_range)
         print("FullGameObsWrapperV3 asseble_obs")
+
+class FullGameObsWrapperV4(FullGameGLVObsBase):
+    def __init__(self, env, compress_width, local_range, target_range):
+        self._compress_width = compress_width
+        self._local_range = local_range
+        self._target_range = target_range
+        super(FullGameObsWrapperV4, self).__init__(env)
+        print("FullGameObsWrapperV4: g_shape={};l_shape={};v_shape={};total_obs_shape={}".format(
+              self._global.obs_space().shape, self._local.obs_space().shape,
+              self._vec.obs_space().shape, self.observation_space.shape))
+
+    def _assemble_obs(self):
+        self._global = FullGameGlobalImgV2(self._compress_width, 
+                                           self._target_range)
+        self._local = FullGameLocalImgV2(self._compress_width, self._local_range, 
+                                         self._target_range)
+        self._vec = FullGameVecV1(self._target_range)
+        print("FullGameObsWrapperV4 asseble_obs")
 
 

@@ -122,3 +122,24 @@ class FullGameRwdWrapperV2(FullGameRoundTripRwd):
         return self._target.in_range(scout_pos)
 
 
+class FullGameRwdWrapperV3(FullGameRoundTripRwd):
+    def __init__(self, env, target_range):
+        super(FullGameRwdWrapperV3, self).__init__(env)
+        self._target_range = target_range
+        self._target = None
+
+    def _assemble_reward(self):
+        self._target = DestRange(self.env.unwrapped.enemy_base(), 
+                                 dest_range=self._target_range)
+
+        self._first_rewards = [fr.FullGameMoveToTarget(self._target_range)]
+        self._second_rewards = [ir.EvadeUnderAttackRwd(),
+                                fr.FullGameInTargetRangeRwd(self._target_range),
+                                fr.FullGameViewRwdV1()]
+        self._final_rewards = [fr.FullGameFinalRwd()]
+
+    def _condition_judge(self, env):
+        scout = env.unwrapped.scout()
+        scout_pos = (scout.float_attr.pos_x, scout.float_attr.pos_y)
+        return self._target.in_range(scout_pos)
+

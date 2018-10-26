@@ -8,7 +8,8 @@ TargetMakerV3, TargetMakerV4, TargetMakerV5, TargetMakerV6, TargetMakerV7, \
 TargetMakerV8
 from sc2scout.wrapper.fullgame_scout import FullGameMaker, FullGameMiniMaker, \
 FullGameMiniMakerV1, FullGameMiniMakerV2, FullGameMiniMakerV3, \
-FullGameMakerV1, FullGameMakerV2, FullGameMakerV3, FullGameMakerV4
+FullGameMakerV1, FullGameMakerV2, FullGameMakerV3, FullGameMakerV4, \
+FullGameMakerV5
 
 
 register('explore_v0', ExploreMakerV0())
@@ -37,5 +38,6 @@ register('fullgame_v1', FullGameMakerV1())
 register('fullgame_v2', FullGameMakerV2())
 register('fullgame_v3', FullGameMakerV3())
 register('fullgame_v4', FullGameMakerV4())
+register('fullgame_v5', FullGameMakerV5())
 
 

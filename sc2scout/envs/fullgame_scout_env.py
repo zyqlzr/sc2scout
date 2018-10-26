@@ -190,3 +190,21 @@ class FullGameScoutEnv(gym.Env):
         else:
             return True
 
+    def get_id_by_pos(self, pos):
+        min_dist = None
+        min_base_gap = 5
+        base_id = None
+        for key, value in self._target_bases.items():
+            dist = sm.calculate_distance(pos[0], pos[1], value[0], value[1])
+            if min_dist is None:
+                min_dist = dist
+                base_id = key
+            elif min_dist > dist:
+                min_dist = dist
+                base_id = key
+
+        if min_dist > min_base_gap:
+            return None
+        else:
+            return base_id
+

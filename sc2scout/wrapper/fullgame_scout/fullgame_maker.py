@@ -1,10 +1,11 @@
 from sc2scout.wrapper.explore_enemy.zerg_scout_wrapper import ZergScoutWrapper
 from sc2scout.wrapper.fullgame_scout.fullgame_act_wrapper import FullGameActWrapper
 from sc2scout.wrapper.fullgame_scout.fullgame_rwd_wrapper import FullGameRwdWrapper, \
-FullGameRwdWrapperV1, FullGameRwdWrapperV2
+FullGameRwdWrapperV1, FullGameRwdWrapperV2, FullGameRwdWrapperV3
 from sc2scout.wrapper.fullgame_scout.fullgame_obs_wrapper import FullGameObsWrapper, \
 FullGameObsMiniWrapper, FullGameObsMiniWrapperV1, FullGameObsMiniWrapperV2, \
-FullGameObsWrapperV1, FullGameObsWrapperV2, FullGameObsWrapperV3
+FullGameObsWrapperV1, FullGameObsWrapperV2, FullGameObsWrapperV3, \
+FullGameObsWrapperV4
 from sc2scout.wrapper.fullgame_scout.fullgame_terminal_wrapper import FullGameTerminalWrapper
 from sc2scout.wrapper.wrapper_factory import WrapperMaker
 
@@ -166,4 +167,20 @@ class FullGameMakerV4(WrapperMaker):
     def model_wrapper(self):
         pass
 
+class FullGameMakerV5(WrapperMaker):
+    def __init__(self):
+        super(FullGameMakerV5, self).__init__('fullgame_v5')
+
+    def make_wrapper(self, env):
+        if env is None:
+            raise Exception('input env is None')
+        env = FullGameActWrapper(env)
+        env = FullGameTerminalWrapper(env)
+        env = FullGameRwdWrapperV3(env, 40)
+        env = FullGameObsWrapperV4(env, 32, 12, 40)
+        env = ZergScoutWrapper(env)
+        return env
+
+    def model_wrapper(self):
+        pass
 
